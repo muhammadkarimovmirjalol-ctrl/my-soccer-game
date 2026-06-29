@@ -1,7 +1,7 @@
 {
   "name": "ultimate-football-3d",
-  "version": "1.0.0",
-  "description": "Realistic 3D Web Football Championship Game ready for 24/7 Render deployment",
+  "version": "2.0.0",
+  "description": "Ultra-Realistic 3D Football Championship Game with Grand Stadium, Cameramen, and Socket.io Online Multiplayer",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -13,14 +13,17 @@
     "threejs",
     "game",
     "3d",
+    "socket.io",
+    "multiplayer",
     "render",
     "express"
   ],
   "author": "Antigravity AI",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.19.2",
-    "cors": "^2.8.5"
+    "socket.io": "^4.7.5"
   },
   "engines": {
     "node": ">=18.0.0"

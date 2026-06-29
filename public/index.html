@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultimate Soccer League 3D - Pro Football Game</title>
-    <!-- Google Fonts for Modern Sports Broadcast HUD -->
+    <title>Ultra-Realistic Soccer League 3D - Full Stadium Match</title>
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&family=Rajdhani:wght@600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
@@ -20,8 +20,8 @@
             <div class="ball-spinner">
                 <i class="fa-solid fa-futbol"></i>
             </div>
-            <h1>ULTIMATE SOCCER LEAGUE 3D</h1>
-            <p class="loading-subtitle">HAQIQIY STADION MUHITI YUKLANMOQDA...</p>
+            <h1>ULTRA-REALISTIC STADIUM 3D</h1>
+            <p class="loading-subtitle">STADION, TROMOSHABINLAR VA KAMERAMANLAR YUKLANMOQDA...</p>
             <div class="progress-bar-container">
                 <div id="progress-bar" class="progress-bar"></div>
             </div>
@@ -33,29 +33,28 @@
         <div class="menu-header">
             <div class="logo">
                 <i class="fa-solid fa-trophy gold-trophy"></i>
-                <span>SUPER LEAGUE 3D</span>
+                <span>ULTRA SOCCER 3D</span>
             </div>
             <div class="user-profile-widget">
                 <span id="player-name-display"><i class="fa-solid fa-user"></i> Kapitan</span>
-                <button id="edit-profile-btn" class="icon-btn"><i class="fa-solid fa-gear"></i></button>
             </div>
         </div>
 
         <div class="menu-body">
             <div class="hero-card">
-                <h2>CHAMPIONS CUP 2026</h2>
-                <p>Darvozani nishonga oling! Burama zarbalar va ajoyib gollar bilan chempionlikni qo'lga kiriting!</p>
+                <h2>CHAMPIONS STADIUM 2026</h2>
+                <p>Maydonda yagona to'p bilan 360° erkin futbol! Ulkan stadion, minglab tomoshabinlar va kameramanlar sizni kutmoqda!</p>
                 
                 <div class="mode-selector">
-                    <div class="mode-card active" data-mode="penalty">
-                        <div class="mode-icon"><i class="fa-solid fa-crosshair"></i></div>
-                        <h3>FREE KICK & PENALTY</h3>
-                        <p>Jarimalar, devor ustidan burama zarbalar va penaltilar rejimi</p>
+                    <div class="mode-card active" data-mode="full_match">
+                        <div class="mode-icon"><i class="fa-solid fa-stadium"></i></div>
+                        <h3>FULL STADIUM 3D MATCH</h3>
+                        <p>360° harakat, dribling, pas va darvozaga kuchli zarbalar</p>
                     </div>
-                    <div class="mode-card" data-mode="arcade">
-                        <div class="mode-icon"><i class="fa-solid fa-gamepad"></i></div>
-                        <h3>3D ARCADE MATCH</h3>
-                        <p>Tezkor 3v3 mini-match va taktik futbol bellashuvi</p>
+                    <div class="mode-card" data-mode="online">
+                        <div class="mode-icon"><i class="fa-solid fa-globe"></i></div>
+                        <h3>ONLINE MULTIPLAYER</h3>
+                        <p>Real-time internet orqali onlayn raqiblarga qarshi o'ynash</p>
                     </div>
                 </div>
 
@@ -63,46 +62,64 @@
                 <div class="team-selection-area">
                     <label>JAMOANGIZNI TANLANG:</label>
                     <div class="teams-grid">
-                        <button class="team-btn active" data-team="Real Madrid" data-color="#ffffff" data-sec="#e6b800">
+                        <button class="team-btn active" data-team="Real Madrid" data-color="#ffffff">
                             <span class="team-badge real"></span> Real Madrid
                         </button>
-                        <button class="team-btn" data-team="FC Barcelona" data-color="#a50044" data-sec="#004d98">
+                        <button class="team-btn" data-team="FC Barcelona" data-color="#a50044">
                             <span class="team-badge barca"></span> Barcelona
                         </button>
-                        <button class="team-btn" data-team="Man City" data-color="#6cabdd" data-sec="#1c2c5b">
+                        <button class="team-btn" data-team="Man City" data-color="#6cabdd">
                             <span class="team-badge mancity"></span> Man City
                         </button>
-                        <button class="team-btn" data-team="Uzbekistan FC" data-color="#0099ff" data-sec="#ffffff">
+                        <button class="team-btn" data-team="Uzbekistan FC" data-color="#0099ff">
                             <span class="team-badge uzb"></span> Uzbekistan
                         </button>
                     </div>
                 </div>
 
+                <!-- Weather Controls -->
+                <div class="weather-selector">
+                    <label>STADION MUHITI VA OB-HAVO:</label>
+                    <div class="weather-grid">
+                        <button class="weather-btn active" data-weather="night"><i class="fa-solid fa-moon"></i> Tungi Projektor</button>
+                        <button class="weather-btn" data-weather="sunny"><i class="fa-solid fa-sun"></i> Kunduzgi Quyosh</button>
+                        <button class="weather-btn" data-weather="rain"><i class="fa-solid fa-cloud-showers-heavy"></i> Yomg'ir</button>
+                    </div>
+                </div>
+
                 <button id="start-game-btn" class="glow-btn">
-                    <i class="fa-solid fa-play"></i> O'YINNI BOSH LASH
+                    <i class="fa-solid fa-play"></i> MAYDONGA CHIQISH
                 </button>
             </div>
 
             <!-- Leaderboard Card -->
             <div class="side-panel">
                 <div class="panel-card leaderboard-card">
-                    <h3><i class="fa-solid fa-ranking-star"></i> ENGLER LIDERLAR (24/7 Global)</h3>
+                    <h3><i class="fa-solid fa-ranking-star"></i> GLOBAL LIDERLAR (24/7 Live)</h3>
                     <div class="leaderboard-list" id="leaderboard-list">
-                        <!-- Populated by JS -->
                         <div class="loading-leaderboard">Yuklanmoqda...</div>
                     </div>
                 </div>
 
                 <div class="panel-card controls-card">
-                    <h3><i class="fa-solid fa-sliders"></i> O'YIN BOSHQARUVI</h3>
+                    <h3><i class="fa-solid fa-sliders"></i> O'YIN BOSHQARUVI (360°)</h3>
                     <ul>
-                        <li><span class="key">Sichqoncha Surish</span> - To'pga zarba berish va burama kavis berish</li>
-                        <li><span class="key">WASD / Yo'nalishlar</span> - O'yinchi harakati (Arcade rejimi)</li>
-                        <li><span class="key">SPACE</span> - Kuchli zarba berish</li>
-                        <li><span class="key">K</span> - Pas uzatish</li>
+                        <li><span class="key">WASD / Yo'nalishlar</span> - O'yinchi 360° erkin harakati</li>
+                        <li><span class="key">SPACE</span> - Darvozaga kuchli zarba (Shoot)</li>
+                        <li><span class="key">K / Shift</span> - Pas uzatish / To'pni olib qo'yish (Pass/Tackle)</li>
+                        <li><span class="key">Sichqoncha Surish</span> - To'pga burama kavis berish</li>
                     </ul>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Match Lobby / Waiting Modal -->
+    <div id="match-waiting-modal" class="overlay-screen hidden">
+        <div class="modal-card">
+            <div class="ball-spinner"><i class="fa-solid fa-spinner"></i></div>
+            <h2>ONLAYN RAQIB IZLANMOQDA...</h2>
+            <p>Iltimos kuting, xona ulanmoqda!</p>
         </div>
     </div>
 
@@ -115,47 +132,43 @@
                 <span id="hud-home-score" class="score-digit">0</span>
             </div>
             <div class="match-clock">
-                <span id="match-timer">89:45</span>
+                <span id="match-timer">45:00</span>
                 <span class="live-badge">LIVE 3D</span>
             </div>
             <div class="team-score away">
                 <span id="hud-away-score" class="score-digit">0</span>
-                <span id="hud-away-name" class="team-name">AI ALL-STARS</span>
+                <span id="hud-away-name" class="team-name">AI RIVALS</span>
             </div>
         </div>
 
-        <!-- Shots Remaining & Streak HUD (for Penalty Mode) -->
-        <div id="penalty-hud-stats" class="penalty-stats-box">
-            <div class="stat-item">
-                <span class="label">IMKONIYATLAR</span>
-                <span id="shots-left-count" class="val">5</span>
+        <!-- Player Stamina & Action HUD -->
+        <div class="player-hud-box">
+            <div class="stamina-bar-container">
+                <span class="stamina-label">STAMINA</span>
+                <div class="stamina-bar"><div id="stamina-fill" class="stamina-fill"></div></div>
             </div>
-            <div class="stat-item">
-                <span class="label">OCHKO</span>
-                <span id="current-score-count" class="val">0</span>
+            <div class="action-hints">
+                <span class="action-btn-hint"><kbd>SPACE</kbd> ZARBA</span>
+                <span class="action-btn-hint"><kbd>K</kbd> PAS</span>
             </div>
-            <div class="stat-item highlight">
-                <span class="label">STREAK (KETMA-KET GOL)</span>
-                <span id="streak-count" class="val">x0</span>
-            </div>
+        </div>
+
+        <!-- Tactical Mini-Map Radar -->
+        <div id="radar-container" class="radar-box">
+            <canvas id="radar-canvas" width="160" height="100"></canvas>
+            <span class="radar-label">TACTICAL RADAR</span>
         </div>
 
         <!-- Commentary Banner -->
         <div id="commentary-banner" class="commentary-banner hidden">
             <i class="fa-solid fa-bullhorn"></i>
-            <span id="commentary-text">Zarba berish uchun tayyorlaning!</span>
+            <span id="commentary-text">Maydonda shiddatli o'yin kechmoqda!</span>
         </div>
 
-        <!-- Swipe Goal Assist Vector & Wind HUD -->
-        <div id="wind-indicator" class="wind-box">
-            <i class="fa-solid fa-wind"></i> SHAMOL: <span id="wind-val">0.0 m/s</span>
-        </div>
-
-        <!-- Pause & Sound Controls -->
+        <!-- Controls -->
         <div class="hud-controls">
             <button id="sound-toggle-btn" class="hud-btn"><i class="fa-solid fa-volume-high"></i></button>
-            <button id="camera-toggle-btn" class="hud-btn"><i class="fa-solid fa-camera"></i></button>
-            <button id="pause-btn" class="hud-btn"><i class="fa-solid fa-pause"></i></button>
+            <button id="camera-toggle-btn" class="hud-btn"><i class="fa-solid fa-video"></i></button>
         </div>
     </div>
 
@@ -163,8 +176,8 @@
     <div id="goal-announcement" class="goal-overlay hidden">
         <div class="goal-content">
             <h1 class="goal-text">GOOOOOOOL! ⚽🔥</h1>
-            <p id="goal-speed-text" class="goal-subtext">Zarba tezligi: 118 km/h | Burama kavis!</p>
-            <div class="replay-badge"><i class="fa-solid fa-video"></i> SLOW-MOTION REPLAY</div>
+            <p id="goal-speed-text" class="goal-subtext">STADIONDA PORTLASH! DAHS HATLI ZARBA!</p>
+            <div class="replay-badge"><i class="fa-solid fa-video"></i> BROADCAST REPLAY</div>
         </div>
     </div>
 
@@ -172,17 +185,17 @@
     <div id="game-over-modal" class="overlay-screen hidden">
         <div class="modal-card">
             <i class="fa-solid fa-trophy modal-icon"></i>
-            <h2 id="modal-title">O'YIN YAKUNLANDI!</h2>
-            <p id="modal-subtitle">Ajoyib natija ko'rsatdingiz!</p>
+            <h2 id="modal-title">MATCH YAKUNLANDI!</h2>
+            <p id="modal-subtitle">Ajoyib o'yin ko'rsatdingiz!</p>
 
             <div class="final-stats">
                 <div class="stat-card">
                     <span class="stat-title">UMUMIY OCHKO</span>
-                    <span id="final-score-val" class="stat-number">380</span>
+                    <span id="final-score-val" class="stat-number">450</span>
                 </div>
                 <div class="stat-card">
                     <span class="stat-title">URILGAN GOLLAR</span>
-                    <span id="final-goals-val" class="stat-number">4</span>
+                    <span id="final-goals-val" class="stat-number">3</span>
                 </div>
             </div>
 
@@ -192,7 +205,7 @@
             </div>
 
             <div class="modal-actions">
-                <button id="save-score-btn" class="glow-btn"><i class="fa-solid fa-cloud-arrow-up"></i> OCHKO NIMA SAQLASH</button>
+                <button id="save-score-btn" class="glow-btn"><i class="fa-solid fa-cloud-arrow-up"></i> NIK NI SAQLASH</button>
                 <button id="restart-game-btn" class="secondary-btn"><i class="fa-solid fa-rotate-right"></i> QAYTA O'YNA SH</button>
             </div>
         </div>
@@ -201,9 +214,10 @@
     <!-- 3D Canvas WebGL Container -->
     <div id="webgl-container"></div>
 
-    <!-- Required 3D Libraries & Sound Scripts -->
+    <!-- Required Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script src="js/audio.js"></script>
     <script src="js/game.js"></script>
 </body>
