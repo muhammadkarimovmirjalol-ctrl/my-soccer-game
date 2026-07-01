@@ -573,11 +573,17 @@ class UltraFootballMatch {
         this.isWalkout = false;
 
         document.getElementById('walkout-screen').classList.add('hidden');
+        document.getElementById('game-hud').classList.remove('hidden');
         
         const banner = document.getElementById('referee-whistle-banner');
         banner.innerHTML = '<i class="fa-solid fa-bullhorn"></i> COACH WHISTLE! MATCH STARTED! 🏁';
         banner.classList.remove('hidden');
-        gameAudio.playWhistle();
+        
+        try {
+            gameAudio.playWhistle();
+        } catch (e) {
+            console.warn("Audio whistle failed to play:", e);
+        }
 
         setTimeout(() => {
             banner.classList.add('hidden');
@@ -720,7 +726,11 @@ class UltraFootballMatch {
         document.getElementById('hud-home-score').innerText = this.homeScore;
         document.getElementById('hud-away-score').innerText = this.awayScore;
 
-        gameAudio.playGoalSound();
+        try {
+            gameAudio.playGoalSound();
+        } catch (e) {
+            console.warn(e);
+        }
         const overlay = document.getElementById('goal-announcement');
         overlay.classList.remove('hidden');
 
@@ -744,7 +754,11 @@ class UltraFootballMatch {
     // ---------------------------------------------------
     triggerOffside() {
         this.isPlaying = false;
-        gameAudio.playWhistle();
+        try {
+            gameAudio.playWhistle();
+        } catch (e) {
+            console.warn(e);
+        }
 
         const banner = document.getElementById('referee-whistle-banner');
         banner.innerHTML = '<i class="fa-solid fa-flag"></i> OFFSIDE CALL! 🚩';
@@ -760,7 +774,11 @@ class UltraFootballMatch {
 
     triggerFoul(player) {
         this.isPlaying = false;
-        gameAudio.playWhistle();
+        try {
+            gameAudio.playWhistle();
+        } catch (e) {
+            console.warn(e);
+        }
 
         const isYellow = Math.random() > 0.4;
         const overlay = document.getElementById('referee-card-overlay');
@@ -795,7 +813,9 @@ class UltraFootballMatch {
     // ---------------------------------------------------
     executePass() {
         if (this.hasBallControl) {
-            gameAudio.playKick();
+            try {
+                gameAudio.playKick();
+            } catch (e) {}
             const passDir = new THREE.Vector3(0, 0.08, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.activePlayer.rotation.y);
             this.ballVelocity.copy(passDir.multiplyScalar(17));
             this.hasBallControl = false;
@@ -804,7 +824,9 @@ class UltraFootballMatch {
 
     executeThroughPass() {
         if (this.hasBallControl) {
-            gameAudio.playKick();
+            try {
+                gameAudio.playKick();
+            } catch (e) {}
             const throughDir = new THREE.Vector3(0, 0.12, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.activePlayer.rotation.y);
             this.ballVelocity.copy(throughDir.multiplyScalar(22));
             this.hasBallControl = false;
@@ -819,7 +841,9 @@ class UltraFootballMatch {
     executeShoot() {
         if (this.hasBallControl) {
             // Shoot at goal
-            gameAudio.playKick();
+            try {
+                gameAudio.playKick();
+            } catch (e) {}
             const shootDir = new THREE.Vector3(0, 0.35, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.activePlayer.rotation.y);
             this.ballVelocity.copy(shootDir.multiplyScalar(28));
             this.hasBallControl = false;
