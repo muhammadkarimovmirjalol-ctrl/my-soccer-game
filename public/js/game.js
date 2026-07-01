@@ -532,7 +532,8 @@ class UltraFootballMatch {
         this.matchPhase = 'play';
         
         // Hide walkout card immediately, display game HUD
-        document.getElementById('walkout-screen').classList.add('hidden');
+        const ws = document.getElementById('walkout-screen');
+        if (ws) ws.classList.add('hidden');
         document.getElementById('game-hud').classList.remove('hidden');
 
         // Position coach directly on the touchline sideline to oversee/coach
@@ -989,9 +990,12 @@ class UltraFootballMatch {
             this.startWalkoutCinematic();
         });
 
-        document.getElementById('skip-walkout-btn').addEventListener('click', () => {
-            this.skipWalkout();
-        });
+        const skipBtn = document.getElementById('skip-walkout-btn');
+        if (skipBtn) {
+            skipBtn.addEventListener('click', () => {
+                this.skipWalkout();
+            });
+        }
     }
 
     updateCamera() {
