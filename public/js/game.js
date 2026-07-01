@@ -543,39 +543,70 @@ class UltraFootballMatch {
         this.ball.position.copy(this.coach.position).add(new THREE.Vector3(0.5, 0.8, 0.2));
     }
 
+    skipWalkout() {
+        if (!this.isWalkout) return;
+        this.isWalkout = false;
+        
+        // Coach retreats to touchline sideline immediately
+        this.coach.position.set(0, 0, -this.fieldLength / 2 - 3);
+        this.coach.lookAt(0, 0, 0);
+        
+        // Put ball down in center circle
+        this.ball.position.set(0, this.ballRadius, 0);
+
+        document.getElementById('walkout-screen').classList.add('hidden');
+        
+        const banner = document.getElementById('referee-whistle-banner');
+        banner.classList.remove('hidden');
+        gameAudio.playWhistle();
+
+        setTimeout(() => {
+            banner.classList.add('hidden');
+        }, 3000);
+
+        this.isPlaying = true;
+        this.matchPhase = 'play';
+
+        // Reset player positions for kickoff
+        this.homeTeamPlayers[0].position.set(-1, 0, 1);
+        this.homeTeamPlayers[1].position.set(4, 0, 4);
+        this.awayTeamPlayers[0].position.set(1, 0, -1);
+        this.awayTeamPlayers[1].position.set(-4, 0, -4);
+    }
+
     updateWalkout(dt) {
         this.walkoutTimer += dt;
         
-        // Coach walks carrying the ball to center circle
+        // Speed up the default walking animation (increased speed from 5.0 to 12.0)
         const targetSpot = new THREE.Vector3(0, 0, 0);
         const dirToCenter = targetSpot.clone().sub(this.coach.position);
         dirToCenter.y = 0;
 
         if (dirToCenter.length() > 0.5) {
             dirToCenter.normalize();
-            this.coach.position.addScaledVector(dirToCenter, 5.0 * dt);
+            this.coach.position.addScaledVector(dirToCenter, 12.0 * dt);
             this.coach.rotation.y = Math.atan2(dirToCenter.x, dirToCenter.z);
             
             // Hold ball in coach arms
             this.ball.position.copy(this.coach.position).add(new THREE.Vector3(0, 0.9, 0.4).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.coach.rotation.y));
 
-            // Players march behind him in two rows
+            // Players march behind him in two rows (speed increased from 4.5 to 11.0)
             this.homeTeamPlayers.forEach((p, idx) => {
                 const pTarget = new THREE.Vector3(-10, 0, 6 + idx * 3);
                 const pDir = pTarget.clone().sub(p.position);
-                p.position.addScaledVector(pDir.normalize(), 4.5 * dt);
+                p.position.addScaledVector(pDir.normalize(), 11.0 * dt);
                 p.rotation.y = Math.atan2(pDir.x, pDir.z);
             });
 
             this.awayTeamPlayers.forEach((p, idx) => {
                 const pTarget = new THREE.Vector3(-6, 0, -6 - idx * 3);
                 const pDir = pTarget.clone().sub(p.position);
-                p.position.addScaledVector(pDir.normalize(), 4.5 * dt);
+                p.position.addScaledVector(pDir.normalize(), 11.0 * dt);
                 p.rotation.y = Math.atan2(pDir.x, pDir.z);
             });
 
-            // Camera panning cinematic view
-            this.camera.position.set(-25 + this.walkoutTimer * 4, 8, -10 + this.walkoutTimer * 2);
+            // Camera panning cinematic view (timer speed scaling increased)
+            this.camera.position.set(-25 + this.walkoutTimer * 8, 8, -10 + this.walkoutTimer * 4);
             this.camera.lookAt(this.coach.position);
         } else {
             // Coach placed ball, blows whistle!
@@ -1001,6 +1032,10 @@ class UltraFootballMatch {
         document.getElementById('start-game-btn').addEventListener('click', () => {
             document.getElementById('main-menu').classList.add('hidden');
             this.startWalkoutCinematic();
+        });
+
+        document.getElementById('skip-walkout-btn').addEventListener('click', () => {
+            this.skipWalkout();
         });
     }
 
