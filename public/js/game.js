@@ -528,13 +528,12 @@ class UltraFootballMatch {
     // WALKOUT CINEMATIC SEQUENCE (TUNNELDAN CHIQISH)
     // ---------------------------------------------------
     startWalkoutCinematic() {
-        this.isWalkout = true;
-        this.matchPhase = 'walkout';
-        this.walkoutTimer = 0;
+        this.isWalkout = false;
+        this.matchPhase = 'play';
         
-        document.getElementById('w-home-name').innerText = this.selectedTeamName;
-        document.getElementById('w-away-name').innerText = this.opponentTeamName;
-        document.getElementById('walkout-screen').classList.remove('hidden');
+        // Hide walkout card immediately, display game HUD
+        document.getElementById('walkout-screen').classList.add('hidden');
+        document.getElementById('game-hud').classList.remove('hidden');
 
         // Position coach directly on the touchline sideline to oversee/coach
         this.coach.position.set(0, 0, -this.fieldLength / 2 - 3);
@@ -553,45 +552,30 @@ class UltraFootballMatch {
         // Setup camera looking at center
         this.camera.position.set(0, 15, 25);
         this.camera.lookAt(0, 0, 0);
-    }
 
-    skipWalkout() {
-        this.completeKickoff();
-    }
-
-    updateWalkout(dt) {
-        this.walkoutTimer += dt;
-        
-        // Show matchup card briefly (1.5 seconds) then start match immediately
-        if (this.walkoutTimer >= 1.5) {
-            this.completeKickoff();
-        }
-    }
-
-    completeKickoff() {
-        if (!this.isWalkout) return;
-        this.isWalkout = false;
-
-        document.getElementById('walkout-screen').classList.add('hidden');
-        document.getElementById('game-hud').classList.remove('hidden');
-        
-        const banner = document.getElementById('referee-whistle-banner');
-        banner.innerHTML = '<i class="fa-solid fa-bullhorn"></i> COACH WHISTLE! MATCH STARTED! 🏁';
-        banner.classList.remove('hidden');
-        
+        // Whistle sound play immediately
         try {
             gameAudio.playWhistle();
         } catch (e) {
-            console.warn("Audio whistle failed to play:", e);
+            console.warn(e);
         }
+
+        const banner = document.getElementById('referee-whistle-banner');
+        banner.innerHTML = '<i class="fa-solid fa-bullhorn"></i> COACH WHISTLE! MATCH STARTED! 🏁';
+        banner.classList.remove('hidden');
 
         setTimeout(() => {
             banner.classList.add('hidden');
-        }, 2500);
+        }, 2000);
 
         this.isPlaying = true;
-        this.matchPhase = 'play';
     }
+
+    skipWalkout() {}
+
+    updateWalkout(dt) {}
+
+    completeKickoff() {}
 
     // ---------------------------------------------------
     // TACTICAL GAME ENGINE LOOP
