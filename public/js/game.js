@@ -78,7 +78,6 @@ class UltraFootballMatch {
                 clearInterval(interval);
                 setTimeout(() => {
                     document.getElementById('loading-screen').classList.add('hidden');
-                    this.startWalkoutCinematic();
                 }, 400);
             }
         }, 100);
@@ -413,6 +412,14 @@ class UltraFootballMatch {
         this.ball.position.set(0, this.ballRadius, 0);
         this.ballVelocity.set(0, 0, 0);
         this.hasBallControl = false;
+
+        // Separate players to kickoff positions to prevent collision overlap
+        if (this.homeTeamPlayers && this.homeTeamPlayers[0]) {
+            this.homeTeamPlayers[0].position.set(-2, 0, 4);
+        }
+        if (this.awayTeamPlayers && this.awayTeamPlayers[0]) {
+            this.awayTeamPlayers[0].position.set(2, 0, -4);
+        }
     }
 
     // ---------------------------------------------------
