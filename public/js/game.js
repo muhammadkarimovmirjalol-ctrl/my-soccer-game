@@ -659,6 +659,11 @@ class UltraFootballMatch {
 
         // Simple Smart Opposition AI (chases ball, tackles)
         this.awayTeamPlayers.forEach(bot => {
+            if (!bot.userData) bot.userData = {};
+            if (bot.userData.stunTime > 0) {
+                bot.userData.stunTime -= dt;
+                return;
+            }
             const dirToBall = this.ball.position.clone().sub(bot.position);
             dirToBall.y = 0;
 
@@ -822,11 +827,6 @@ class UltraFootballMatch {
             const throughDir = new THREE.Vector3(0, 0.12, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.activePlayer.rotation.y);
             this.ballVelocity.copy(throughDir.multiplyScalar(22));
             this.hasBallControl = false;
-            
-            // Randomly trigger an offside check for realistic referee feel
-            if (Math.random() < 0.15) {
-                setTimeout(() => this.triggerOffside(), 800);
-            }
         }
     }
 
@@ -850,12 +850,21 @@ class UltraFootballMatch {
         const slideDir = new THREE.Vector3(0, 0, 0.8).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.activePlayer.rotation.y);
         this.activePlayer.position.addScaledVector(slideDir, 5.0);
 
-        // Check if hit opponent (Foul check)
+        // Check if hit opponent (Steal ball and stun bot)
         this.awayTeamPlayers.forEach(bot => {
             const dist = this.activePlayer.position.distanceTo(bot.position);
-            if (dist < 1.4) {
-                // Tackle hit the opponent! Foul!
-                setTimeout(() => this.triggerFoul(this.activePlayer), 100);
+            if (dist < 2.0) {
+                if (!bot.userData) bot.userData = {};
+                bot.userData.stunTime = 1.5; // Stun bot for 1.5s
+                
+                // Steal the ball and place it near player
+                this.hasBallControl = true;
+                this.ball.position.copy(this.activePlayer.position).add(new THREE.Vector3(0, 0.2, 0.6));
+                this.ballVelocity.set(0, 0, 0);
+
+                try {
+                    gameAudio.playKick();
+                } catch(e) {}
             }
         });
     }
