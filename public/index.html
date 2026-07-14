@@ -43,53 +43,15 @@
         <div class="menu-body">
             <div class="hero-card">
                 <h2>WORLD CUP CHAMPIONSHIP</h2>
-                <p>Ultra-realistik 3D futbol maydoni, murabbiy boshqaruvi, Adidas/Nike/Coca-Cola reklamalari, tunneldan chiqib kelish va qizil/sariq kartochkalar!</p>
+                <p>Professional darajadagi 3D futbol o'yini: formatsiyalar, darvozabon himoyasi va turnirlar!</p>
                 
-                <div class="mode-selector">
-                    <div class="mode-card active" data-mode="full_match">
-                        <div class="mode-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                        <h3>REAL WORLD MATCH</h3>
-                        <p>360° erkin harakat, tunneldan chiqish, Coach hushtagi, follar va kartochkalar</p>
-                    </div>
-                    <div class="mode-card" data-mode="online">
-                        <div class="mode-icon"><i class="fa-solid fa-network-wired"></i></div>
-                        <h3>ONLINE VERSUS ROOM</h3>
-                        <p>Real-time internet orqali xonalarga ulanib onlayn o'ynash</p>
-                    </div>
+                <div class="main-options-grid">
+                    <button id="btn-quick-match" class="glow-btn menu-opt-btn"><i class="fa-solid fa-bolt"></i> TEZKOR O'YIN (QUICK MATCH)</button>
+                    <button id="btn-tournament" class="glow-btn menu-opt-btn"><i class="fa-solid fa-trophy"></i> JAHON KUBOGI (TOURNAMENT)</button>
+                    <button id="btn-training" class="glow-btn menu-opt-btn"><i class="fa-solid fa-dumbbell"></i> MASHQ MAYDONI (TRAINING)</button>
+                    <button id="btn-settings-menu" class="glow-btn menu-opt-btn secondary-btn"><i class="fa-solid fa-gears"></i> SOZLAMALAR (SETTINGS)</button>
+                    <button id="btn-profile-menu" class="glow-btn menu-opt-btn secondary-btn"><i class="fa-solid fa-id-card"></i> PROFILE / MY TEAM</button>
                 </div>
-
-                <!-- Team Selector -->
-                <div class="team-selection-area">
-                    <label>JAMOANGIZNI TANLANG:</label>
-                    <div class="teams-grid">
-                        <button class="team-btn active" data-team="POR" data-color="#ff0000" data-opp="BRA">
-                            <span class="team-badge port"></span> PORTUGAL (Ronaldo)
-                        </button>
-                        <button class="team-btn" data-team="ESP" data-color="#d91a1a" data-opp="POR">
-                            <span class="team-badge spain"></span> SPAIN SQUAD
-                        </button>
-                        <button class="team-btn" data-team="BRA" data-color="#e6c300" data-opp="POR">
-                            <span class="team-badge bra"></span> BRAZIL (Casemiro)
-                        </button>
-                        <button class="team-btn" data-team="USA" data-color="#0f1c3f" data-opp="MEX">
-                            <span class="team-badge usa"></span> USA (McKennie)
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Weather Controls -->
-                <div class="weather-selector">
-                    <label>STADION CHIM MUHITI VA OB-HAVO:</label>
-                    <div class="weather-grid">
-                        <button class="weather-btn active" data-weather="night"><i class="fa-solid fa-moon"></i> Tungi Floodlights</button>
-                        <button class="weather-btn" data-weather="sunny"><i class="fa-solid fa-sun"></i> Quyoshli Kun</button>
-                        <button class="weather-btn" data-weather="rain"><i class="fa-solid fa-cloud-showers-water"></i> Yomg'irli Chim</button>
-                    </div>
-                </div>
-
-                <button id="start-game-btn" class="glow-btn">
-                    START MATCH ⚽
-                </button>
             </div>
 
             <!-- Leaderboard Card -->
@@ -105,16 +67,151 @@
                     <h3><i class="fa-solid fa-sliders"></i> O'YIN BOSHQARUVI (FC HUD)</h3>
                     <ul>
                         <li><span class="key">WASD / Chap Joystick</span> - O'yinchi 360° erkin harakati</li>
+                        <li><span class="key">Q / SWITCH</span> - O'yinchini almashtirish</li>
                         <li><span class="key">Probel / ZARBA</span> - Darvozaga kuchli zarba berish</li>
                         <li><span class="key">K / PAS</span> - Pas uzatish</li>
                         <li><span class="key">I / VPRAREZ</span> - Kesma pas (Through ball)</li>
-                        <li><span class="key">O / PODKAT</span> - Sirpanib to'pni olish (Slide Tackle)</li>
+                        <li><span class="key">O / PODKAT</span> - To'pni podkat bilan tortib olish</li>
                     </ul>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Team Selection Screen -->
+    <div id="team-select-screen" class="overlay-screen hidden">
+        <div class="menu-header">
+            <h2><i class="fa-solid fa-flag"></i> JAMOALARNI TANLANG</h2>
+            <button class="back-btn" onclick="gameMenu.showScreen('main-menu')"><i class="fa-solid fa-arrow-left"></i> ORQAGA</button>
+        </div>
+        <div class="selection-container">
+            <div class="team-picker-card">
+                <h3>SIZNING JAMOANGIZ</h3>
+                <div class="teams-list-grid" id="home-teams-list">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+            <div class="team-picker-card">
+                <h3>RAQIB JAMOA</h3>
+                <div class="teams-list-grid" id="away-teams-list">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+        </div>
+        <div class="action-footer">
+            <button id="btn-confirm-teams" class="glow-btn select-action-btn">STADION TANLASHGA O'TISH <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+    </div>
+
+    <!-- Stadium Selection Screen -->
+    <div id="stadium-select-screen" class="overlay-screen hidden">
+        <div class="menu-header">
+            <h2><i class="fa-solid fa-tree-city"></i> STADION TANLANG</h2>
+            <button class="back-btn" onclick="gameMenu.showScreen('team-select-screen')"><i class="fa-solid fa-arrow-left"></i> ORQAGA</button>
+        </div>
+        <div class="stadiums-grid">
+            <div class="stadium-card active" data-stadium="night">
+                <i class="fa-solid fa-moon stadium-icon"></i>
+                <h4>TUNGI ARENA</h4>
+                <p>Floodlight yoritish tizimi bilan jihozlangan tungi stadion.</p>
+            </div>
+            <div class="stadium-card" data-stadium="sunny">
+                <i class="fa-solid fa-sun stadium-icon"></i>
+                <h4>KUNDUZGI ARENA</h4>
+                <p>Yorqin quyoshli ochiq osmon ostidagi klassik maydon.</p>
+            </div>
+            <div class="stadium-card" data-stadium="rain">
+                <i class="fa-solid fa-cloud-showers-water stadium-icon"></i>
+                <h4>YOMG'IRLI CHIM</h4>
+                <p>Chim nam va sirpanchiq. To'p tezroq va sirpanib harakatlanadi!</p>
+            </div>
+            <div class="stadium-card" data-stadium="desert">
+                <i class="fa-solid fa-wind stadium-icon"></i>
+                <h4>DESERT ARENA</h4>
+                <p>Minimalist mashq va dribbling poligoni.</p>
+            </div>
+            <div class="stadium-card" data-stadium="final">
+                <i class="fa-solid fa-trophy stadium-icon"></i>
+                <h4>GRAND FINAL ARENA</h4>
+                <p>Konfetti, tribunalar to'la tomoshabinlar, alangali bayram.</p>
+            </div>
+        </div>
+        <div class="action-footer">
+            <button id="btn-start-match-direct" class="glow-btn select-action-btn">O'YINNI BOSHLASH ⚽️🔥</button>
+        </div>
+    </div>
+
+    <!-- Tournament Bracket Screen -->
+    <div id="tournament-bracket-screen" class="overlay-screen hidden">
+        <div class="menu-header">
+            <h2><i class="fa-solid fa-sitemap"></i> TURNIR SETKASI (WORLD CUP)</h2>
+            <button class="back-btn" onclick="gameMenu.showScreen('main-menu')"><i class="fa-solid fa-arrow-left"></i> ORQAGA</button>
+        </div>
+        <div class="bracket-grid">
+            <div class="bracket-column">
+                <h3>CHORAK FINAL (1/4)</h3>
+                <div class="matchup-box" id="qf-match-1">POR vs BRA</div>
+                <div class="matchup-box" id="qf-match-2">UZB vs ARG</div>
+                <div class="matchup-box" id="qf-match-3">ESP vs GER</div>
+                <div class="matchup-box" id="qf-match-4">FRA vs ITA</div>
+            </div>
+            <div class="bracket-column">
+                <h3>YARIM FINAL (1/2)</h3>
+                <div class="matchup-box" id="sf-match-1">? vs ?</div>
+                <div class="matchup-box" id="sf-match-2">? vs ?</div>
+            </div>
+            <div class="bracket-column">
+                <h3>FINAL (1/1)</h3>
+                <div class="matchup-box final-box" id="final-match">? vs ?</div>
+            </div>
+        </div>
+        <div class="action-footer">
+            <button id="btn-play-tournament-match" class="glow-btn select-action-btn">NAVBATDAGI TURNIR MATCHIGA CHIQISH <i class="fa-solid fa-play"></i></button>
+        </div>
+    </div>
+
+    <!-- Settings Screen -->
+    <div id="settings-screen" class="overlay-screen hidden">
+        <div class="menu-header">
+            <h2><i class="fa-solid fa-gears"></i> SOZLAMALAR</h2>
+            <button class="back-btn" onclick="gameMenu.showScreen('main-menu')"><i class="fa-solid fa-arrow-left"></i> ORQAGA</button>
+        </div>
+        <div class="settings-body">
+            <div class="setting-item">
+                <label>O'YIN QIYINLIK DARAJASI (AI):</label>
+                <div class="difficulty-grid">
+                    <button class="diff-btn" data-diff="easy">OSON (EASY)</button>
+                    <button class="diff-btn active" data-diff="medium">O'RTA (MEDIUM)</button>
+                    <button class="diff-btn" data-diff="hard">QIYIN (HARD)</button>
+                </div>
+            </div>
+            <div class="setting-item">
+                <label>AUDIO / OVOZ EFFEKTI:</label>
+                <button id="settings-audio-btn" class="glow-btn secondary-btn"><i class="fa-solid fa-volume-high"></i> OVOZNI YOQISH / O'CHIRISH</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile / My Team Screen -->
+    <div id="profile-screen" class="overlay-screen hidden">
+        <div class="menu-header">
+            <h2><i class="fa-solid fa-id-card"></i> PROFILE / MY TEAM</h2>
+            <button class="back-btn" onclick="gameMenu.showScreen('main-menu')"><i class="fa-solid fa-arrow-left"></i> ORQAGA</button>
+        </div>
+        <div class="profile-body">
+            <div class="team-stat-card">
+                <h3>JAMOANGIZ STATISTIKASI</h3>
+                <p>Urilgan gollar: <span id="stat-total-goals" style="color:var(--primary)">0</span></p>
+                <p>O'ynalgan o'yinlar: <span id="stat-total-matches" style="color:var(--primary)">0</span></p>
+                <p>Reyting ball: <span id="stat-rating-points" style="color:var(--gold)">1200</span></p>
+            </div>
+            <div class="input-group">
+                <label>KAPITAN NICKNAME:</label>
+                <input type="text" id="profile-name-input" placeholder="Ismingizni kiriting" value="Kapitan">
+                <button id="btn-save-profile" class="glow-btn" style="margin-top: 15px;">SAQLASH</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Match Lobby / Waiting Modal -->
     <div id="match-waiting-modal" class="overlay-screen hidden">
@@ -124,6 +221,8 @@
             <p>Iltimos kuting, xona ulanmoqda!</p>
         </div>
     </div>
+
+
 
     <!-- In-Game Broadcast HUD Overlay (1:1 with Screenshots) -->
     <div id="game-hud" class="hud-overlay hidden">
@@ -234,7 +333,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="js/audio.js?v=2.1"></script>
-    <script src="js/game.js?v=2.1"></script>
+    <script src="js/audio.js?v=2.2"></script>
+    <script src="js/referee.js?v=2.2"></script>
+    <script src="js/physics.js?v=2.2"></script>
+    <script src="js/ai.js?v=2.2"></script>
+    <script src="js/menu.js?v=2.2"></script>
+    <script src="js/game.js?v=2.2"></script>
 </body>
 </html>

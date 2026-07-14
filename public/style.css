@@ -843,3 +843,193 @@ body, html {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
+/* --- NEW MENU OPTIONS GRID --- */
+.main-options-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+.menu-opt-btn {
+    text-transform: uppercase;
+}
+
+/* --- BACK BUTTON --- */
+.back-btn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* --- TEAM SELECTOR --- */
+.selection-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    padding: 20px 45px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+.team-picker-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 25px;
+    height: 480px;
+    overflow-y: auto;
+}
+.teams-list-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+}
+.team-list-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #fff;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: left;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.team-list-btn.active, .team-list-btn:hover {
+    background: rgba(2, 248, 123, 0.15);
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(2, 248, 123, 0.25);
+}
+
+/* --- STADIUM SELECTOR --- */
+.stadiums-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 30px 45px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+.stadium-card {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+.stadium-card.active, .stadium-card:hover {
+    border-color: var(--primary);
+    background: rgba(2, 248, 123, 0.08);
+    box-shadow: 0 0 25px rgba(2, 248, 123, 0.2);
+}
+.stadium-icon {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: 15px;
+}
+.stadium-card h4 {
+    font-size: 1.2rem;
+    margin-bottom: 10px;
+}
+.stadium-card p {
+    font-size: 0.85rem;
+    color: var(--text-sub);
+}
+
+/* --- TOURNAMENT BRACKET --- */
+.bracket-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 30px;
+    padding: 30px 45px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+.bracket-column {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+.bracket-column h3 {
+    font-size: 1.1rem;
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 10px;
+}
+.matchup-box {
+    background: var(--card-bg);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    font-size: 0.95rem;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+.final-box {
+    border-color: var(--gold);
+    box-shadow: 0 0 25px rgba(230, 195, 0, 0.2);
+}
+
+/* --- SETTINGS & PROFILE --- */
+.settings-body, .profile-body {
+    max-width: 600px;
+    margin: 40px auto;
+    background: var(--card-bg);
+    padding: 35px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.setting-item {
+    margin-bottom: 30px;
+}
+.setting-item label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+.difficulty-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 15px;
+}
+.diff-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+}
+.diff-btn.active {
+    background: var(--primary);
+    color: #000;
+    border-color: var(--primary);
+}
+
+.action-footer {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+.select-action-btn {
+    max-width: 400px;
+}
+.btn-orange {
+    background: linear-gradient(135deg, #ff8c00, #ff5722) !important;
+    color: #fff !important;
+}
+

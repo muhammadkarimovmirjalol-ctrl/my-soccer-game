@@ -131,7 +131,8 @@ class UltraFootballMatch {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.container.appendChild(this.renderer.domElement);
 
-        this.scene.add(new THREE.AmbientLight(0xddeeff, 0.65));
+        this.ambientLight = new THREE.AmbientLight(0xddeeff, 0.65);
+        this.scene.add(this.ambientLight);
 
         this.floodLight = new THREE.DirectionalLight(0xffffff, 1.4);
         this.floodLight.position.set(40, 70, 30);
@@ -413,12 +414,23 @@ class UltraFootballMatch {
         this.ballVelocity.set(0, 0, 0);
         this.hasBallControl = false;
 
-        // Separate players to kickoff positions to prevent collision overlap
-        if (this.homeTeamPlayers && this.homeTeamPlayers[0]) {
-            this.homeTeamPlayers[0].position.set(-2, 0, 4);
+        // Reposition 5v5 home team players
+        if (this.homeTeamPlayers && this.homeTeamPlayers.length >= 5) {
+            this.homeTeamPlayers[0].position.set(0, 0, 27); // GK
+            this.homeTeamPlayers[1].position.set(0, 0, 14); // DF
+            this.homeTeamPlayers[2].position.set(-4, 0, 6); // MF
+            this.homeTeamPlayers[3].position.set(-1, 0, 1); // FW
+            this.homeTeamPlayers[4].position.set(4, 0, 4);  // SUB
+            this.activePlayer = this.homeTeamPlayers[3];
         }
-        if (this.awayTeamPlayers && this.awayTeamPlayers[0]) {
-            this.awayTeamPlayers[0].position.set(2, 0, -4);
+
+        // Reposition 5v5 away team players
+        if (this.awayTeamPlayers && this.awayTeamPlayers.length >= 5) {
+            this.awayTeamPlayers[0].position.set(0, 0, -27); // GK
+            this.awayTeamPlayers[1].position.set(0, 0, -14); // DF
+            this.awayTeamPlayers[2].position.set(4, 0, -6);  // MF
+            this.awayTeamPlayers[3].position.set(1, 0, -1);  // FW
+            this.awayTeamPlayers[4].position.set(-4, 0, -4); // SUB
         }
     }
 
@@ -453,36 +465,202 @@ class UltraFootballMatch {
     // 3D PLAYER MODEL BUILDER (FORMASIDAGI O'YINCHILAR)
     // ---------------------------------------------------
     buildPlayers() {
+        if (this.homeTeamPlayers) {
+            this.homeTeamPlayers.forEach(p => this.scene.remove(p));
+        }
+        if (this.awayTeamPlayers) {
+            this.awayTeamPlayers.forEach(p => this.scene.remove(p));
+        }
+
         this.homeTeamPlayers = [];
         this.awayTeamPlayers = [];
 
-        // Portugal / Spain Formasi (Home Team)
-        // Differentiate C. Ronaldo with #7 jersey on back!
-        const ronaldo = this.createRealisticPlayer(0xff0000, 0xffd200, "C. RONALDO", "7");
-        ronaldo.position.set(-2, 0, 8);
-        this.scene.add(ronaldo);
-        this.homeTeamPlayers.push(ronaldo);
+        // PORTUGAL (Home Team)
+        const gkHome = this.createRealisticPlayer(0xffaa00, 0x111111, "PATRICIO", "1", "GK");
+        gkHome.position.set(0, 0, 27);
+        
+        const dfHome = this.createRealisticPlayer(0xff0000, 0xffd200, "PEPE", "3", "DF");
+        dfHome.position.set(0, 0, 14);
 
-        const casemiro = this.createRealisticPlayer(0xff0000, 0xffd200, "CASEMIRO", "5");
-        casemiro.position.set(2, 0, 12);
-        this.scene.add(casemiro);
-        this.homeTeamPlayers.push(casemiro);
+        const mfHome = this.createRealisticPlayer(0xff0000, 0xffd200, "CASEMIRO", "5", "MF");
+        mfHome.position.set(-4, 0, 6);
 
-        // Brazil / USA Formasi (Away Team)
-        const opponent1 = this.createRealisticPlayer(0x0f1c3f, 0xffffff, "MCKENNIE", "8"); // USA style blue
-        opponent1.position.set(-3, 0, -8);
-        this.scene.add(opponent1);
-        this.awayTeamPlayers.push(opponent1);
+        const fwHome = this.createRealisticPlayer(0xff0000, 0xffd200, "C. RONALDO", "7", "FW");
+        fwHome.position.set(2, 0, 2);
 
-        const opponent2 = this.createRealisticPlayer(0x0f1c3f, 0xffffff, "JIMENEZ", "9");
-        opponent2.position.set(3, 0, -12);
-        this.scene.add(opponent2);
-        this.awayTeamPlayers.push(opponent2);
+        const subHome = this.createRealisticPlayer(0xff0000, 0xffd200, "JOTA", "11", "FW");
+        subHome.position.set(8, 0, 15);
 
-        this.activePlayer = ronaldo; // Start with Ronaldo selected
+        this.homeTeamPlayers.push(gkHome, dfHome, mfHome, fwHome, subHome);
+        this.homeTeamPlayers.forEach(p => this.scene.add(p));
+
+        // BRAZIL (Away Team)
+        const gkAway = this.createRealisticPlayer(0x00aaff, 0x111111, "ALISSON", "1", "GK");
+        gkAway.position.set(0, 0, -27);
+
+        const dfAway = this.createRealisticPlayer(0x0f1c3f, 0xffffff, "MARQUINHOS", "4", "DF");
+        dfAway.position.set(0, 0, -14);
+
+        const mfAway = this.createRealisticPlayer(0x0f1c3f, 0xffffff, "NEYMAR", "10", "MF");
+        mfAway.position.set(4, 0, -6);
+
+        const fwAway = this.createRealisticPlayer(0x0f1c3f, 0xffffff, "JIMENEZ", "9", "FW");
+        fwAway.position.set(-2, 0, -2);
+
+        const subAway = this.createRealisticPlayer(0x0f1c3f, 0xffffff, "ANTONY", "19", "FW");
+        subAway.position.set(-8, 0, -15);
+
+        this.awayTeamPlayers.push(gkAway, dfAway, mfAway, fwAway, subAway);
+        this.awayTeamPlayers.forEach(p => this.scene.add(p));
+
+        this.activePlayer = fwHome; // Start controlling Ronaldo
+        this.buildPlayerSelector();
     }
 
-    createRealisticPlayer(shirtColor, shortColor, name, number) {
+    buildPlayerSelector() {
+        if (this.selectorRing) this.scene.remove(this.selectorRing);
+        const geo = new THREE.ConeGeometry(0.18, 0.45, 4);
+        geo.rotateX(Math.PI); // Point down
+        const mat = new THREE.MeshBasicMaterial({ color: 0x02f87b });
+        this.selectorRing = new THREE.Mesh(geo, mat);
+        this.scene.add(this.selectorRing);
+    }
+
+    setupStadiumTheme(theme) {
+        this.weather = theme;
+        
+        // Remove existing weather particles if any
+        if (this.rainParticles) this.scene.remove(this.rainParticles);
+        if (this.fireParticles) this.scene.remove(this.fireParticles);
+
+        // Adjust grass physics in our physics module
+        if (window.gamePhysics) {
+            window.gamePhysics.setWeather(theme);
+        }
+
+        // Update lights based on theme
+        if (theme === 'sunny') {
+            if (this.floodLight) {
+                this.floodLight.color.setHex(0xffffff);
+                this.floodLight.intensity = 1.3;
+            }
+            if (this.ambientLight) {
+                this.ambientLight.color.setHex(0xaaaaaa);
+                this.ambientLight.intensity = 0.8;
+            }
+            this.scene.background = new THREE.Color(0x87ceeb); // Sky blue
+            this.renderer.setClearColor(0x87ceeb);
+        } else if (theme === 'rain') {
+            if (this.floodLight) {
+                this.floodLight.color.setHex(0x8899aa);
+                this.floodLight.intensity = 0.6;
+            }
+            if (this.ambientLight) {
+                this.ambientLight.color.setHex(0x445566);
+                this.ambientLight.intensity = 0.5;
+            }
+            this.scene.background = new THREE.Color(0x223344);
+            this.renderer.setClearColor(0x223344);
+            this.buildRainParticles();
+        } else if (theme === 'desert') {
+            if (this.floodLight) {
+                this.floodLight.color.setHex(0xfff5ee);
+                this.floodLight.intensity = 1.2;
+            }
+            if (this.ambientLight) {
+                this.ambientLight.color.setHex(0xd2b48c);
+                this.ambientLight.intensity = 0.7;
+            }
+            this.scene.background = new THREE.Color(0xeed5b7);
+            this.renderer.setClearColor(0xeed5b7);
+        } else if (theme === 'final') {
+            if (this.floodLight) {
+                this.floodLight.color.setHex(0xffffff);
+                this.floodLight.intensity = 1.4;
+            }
+            if (this.ambientLight) {
+                this.ambientLight.color.setHex(0xccaa88);
+                this.ambientLight.intensity = 0.9;
+            }
+            this.scene.background = new THREE.Color(0x111122);
+            this.renderer.setClearColor(0x111122);
+            this.buildFireParticles();
+        } else {
+            // night
+            if (this.floodLight) {
+                this.floodLight.color.setHex(0xffffff);
+                this.floodLight.intensity = 1.4;
+            }
+            if (this.ambientLight) {
+                this.ambientLight.color.setHex(0xddeeff);
+                this.ambientLight.intensity = 0.65;
+            }
+            this.scene.background = new THREE.Color(0x05080e);
+            this.renderer.setClearColor(0x05080e);
+        }
+    }
+
+    buildRainParticles() {
+        const particleCount = 1500;
+        const geometry = new THREE.BufferGeometry();
+        const positions = [];
+        
+        for (let i = 0; i < particleCount; i++) {
+            positions.push(
+                Math.random() * 120 - 60,  // x
+                Math.random() * 40 + 5,   // y
+                Math.random() * 160 - 80   // z
+            );
+        }
+        
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        
+        const material = new THREE.PointsMaterial({
+            color: 0x88ccff,
+            size: 0.15,
+            transparent: true,
+            opacity: 0.6
+        });
+        
+        this.rainParticles = new THREE.Points(geometry, material);
+        this.scene.add(this.rainParticles);
+    }
+
+    buildFireParticles() {
+        const particleCount = 200;
+        const geometry = new THREE.BufferGeometry();
+        const positions = [];
+        const torchLocations = [
+            new THREE.Vector3(-36, 0.5, -45),
+            new THREE.Vector3(36, 0.5, -45),
+            new THREE.Vector3(-36, 0.5, 45),
+            new THREE.Vector3(36, 0.5, 45)
+        ];
+        
+        torchLocations.forEach(loc => {
+            for (let i = 0; i < particleCount / 4; i++) {
+                positions.push(
+                    loc.x + (Math.random() * 0.4 - 0.2),
+                    loc.y + (Math.random() * 3.0),
+                    loc.z + (Math.random() * 0.4 - 0.2)
+                );
+            }
+        });
+        
+        geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+        
+        const material = new THREE.PointsMaterial({
+            color: 0xff5500,
+            size: 0.3,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        this.fireParticles = new THREE.Points(geometry, material);
+        this.scene.add(this.fireParticles);
+    }
+
+    createRealisticPlayer(shirtColor, shortColor, name, number, role = "FW") {
         const player = new THREE.Group();
         const skinMat = new THREE.MeshStandardMaterial({ color: 0xe0ac69 });
         const shirtMat = new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.5 });
@@ -525,7 +703,8 @@ class UltraFootballMatch {
             number,
             speed: 10,
             hasYellowCard: false,
-            role: 'outfield'
+            role,
+            stunTime: 0
         };
 
         return player;
@@ -551,11 +730,24 @@ class UltraFootballMatch {
         this.ball.position.set(0, this.ballRadius, 0);
         this.ballVelocity.set(0, 0, 0);
 
-        // Position teams already split and lined up in kickoff positions
-        this.homeTeamPlayers[0].position.set(-1, 0, 1);
-        this.homeTeamPlayers[1].position.set(4, 0, 4);
-        this.awayTeamPlayers[0].position.set(1, 0, -1);
-        this.awayTeamPlayers[1].position.set(-4, 0, -4);
+        // Position 5v5 home team players
+        if (this.homeTeamPlayers && this.homeTeamPlayers.length >= 5) {
+            this.homeTeamPlayers[0].position.set(0, 0, 27); // GK
+            this.homeTeamPlayers[1].position.set(0, 0, 14); // DF
+            this.homeTeamPlayers[2].position.set(-4, 0, 6); // MF
+            this.homeTeamPlayers[3].position.set(-1, 0, 1); // FW (controlled)
+            this.homeTeamPlayers[4].position.set(4, 0, 4);  // SUB/Wing
+            this.activePlayer = this.homeTeamPlayers[3];
+        }
+
+        // Position 5v5 away team players
+        if (this.awayTeamPlayers && this.awayTeamPlayers.length >= 5) {
+            this.awayTeamPlayers[0].position.set(0, 0, -27); // GK
+            this.awayTeamPlayers[1].position.set(0, 0, -14); // DF
+            this.awayTeamPlayers[2].position.set(4, 0, -6);  // MF
+            this.awayTeamPlayers[3].position.set(1, 0, -1);  // FW
+            this.awayTeamPlayers[4].position.set(-4, 0, -4); // SUB/Wing
+        }
 
         // Setup camera looking at center
         this.camera.position.set(0, 15, 25);
@@ -568,15 +760,37 @@ class UltraFootballMatch {
             console.warn(e);
         }
 
+        // Activate Referee Kickoff Immunity
+        if (window.gameReferee) {
+            window.gameReferee.resetImmunity();
+        }
+
         const banner = document.getElementById('referee-whistle-banner');
-        banner.innerHTML = '<i class="fa-solid fa-bullhorn"></i> COACH WHISTLE! MATCH STARTED! 🏁';
-        banner.classList.remove('hidden');
+        if (banner) {
+            banner.innerHTML = '<i class="fa-solid fa-bullhorn"></i> COACH WHISTLE! MATCH STARTED! 🏁';
+            banner.classList.remove('hidden');
+        }
 
         setTimeout(() => {
-            banner.classList.add('hidden');
+            if (banner) banner.classList.add('hidden');
         }, 2000);
 
         this.isPlaying = true;
+    }
+
+    switchActivePlayer() {
+        if (!this.homeTeamPlayers) return;
+        
+        // Find outfield teammates
+        const outfieldMates = this.homeTeamPlayers.filter(p => p.userData.role !== 'GK');
+        if (outfieldMates.length === 0) return;
+
+        // Get index of current active player
+        let currentIndex = outfieldMates.indexOf(this.activePlayer);
+        let nextIndex = (currentIndex + 1) % outfieldMates.length;
+
+        this.activePlayer = outfieldMates[nextIndex];
+        console.log(`[Switch] Controlled teammate switched to: ${this.activePlayer.userData.name} (${this.activePlayer.userData.role})`);
     }
 
     skipWalkout() {}
@@ -603,6 +817,56 @@ class UltraFootballMatch {
             this.updateRadar();
             this.updateClock(dt);
             this.updateCrowd(time);
+
+            // Update Weather Particles
+            if (this.weather === 'rain' && this.rainParticles) {
+                const positions = this.rainParticles.geometry.attributes.position.array;
+                for (let i = 1; i < positions.length; i += 3) {
+                    positions[i] -= 0.6; // Rain fall speed
+                    if (positions[i] < 0) positions[i] = Math.random() * 40 + 5;
+                }
+                this.rainParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            if (this.weather === 'final' && this.fireParticles) {
+                const positions = this.fireParticles.geometry.attributes.position.array;
+                for (let i = 1; i < positions.length; i += 3) {
+                    positions[i] += Math.random() * 0.1 - 0.04;
+                    if (positions[i] > 4.5) positions[i] = 0.5;
+                }
+                this.fireParticles.geometry.attributes.position.needsUpdate = true;
+            }
+
+            // Referee controller update
+            if (window.gameReferee) {
+                window.gameReferee.update(dt);
+
+                // Run strict foul checking logic on contact
+                if (!this.isTraining) {
+                    this.homeTeamPlayers.forEach(hPlayer => {
+                        this.awayTeamPlayers.forEach(aPlayer => {
+                            if (hPlayer.userData.role !== 'GK' && aPlayer.userData.role !== 'GK') {
+                                const dist = hPlayer.position.distanceTo(aPlayer.position);
+                                if (dist < 1.4) {
+                                    const relativeSpeed = 15.0; // Simulated speed threshold
+                                    const isSliding = (hPlayer === this.activePlayer && this.activePlayer.userData.isSliding);
+                                    
+                                    if (window.gameReferee.checkTackleFoul(hPlayer, aPlayer, dist, relativeSpeed, isSliding)) {
+                                        window.gameReferee.triggerFoul(hPlayer, this);
+                                    }
+                                }
+                            }
+                        });
+                    });
+                }
+            }
+        }
+
+        // Bobbing & rotating selector arrow above controlled player
+        if (this.activePlayer && this.selectorRing) {
+            this.selectorRing.position.copy(this.activePlayer.position);
+            this.selectorRing.position.y = 2.4 + Math.sin(Date.now() * 0.005) * 0.15;
+            this.selectorRing.rotation.y += 0.02;
         }
 
         this.renderer.render(this.scene, this.camera);
@@ -657,21 +921,27 @@ class UltraFootballMatch {
     updateAIOpponents(dt) {
         if (this.isOnline) return;
 
-        // Simple Smart Opposition AI (chases ball, tackles)
-        this.awayTeamPlayers.forEach(bot => {
-            if (!bot.userData) bot.userData = {};
-            if (bot.userData.stunTime > 0) {
-                bot.userData.stunTime -= dt;
-                return;
-            }
-            const dirToBall = this.ball.position.clone().sub(bot.position);
-            dirToBall.y = 0;
+        // Update home AI teammates (excluding the active controlled player and GK)
+        if (this.homeTeamPlayers) {
+            this.homeTeamPlayers.forEach(p => {
+                if (p !== this.activePlayer && p.userData.role !== 'GK') {
+                    if (window.gameAI) window.gameAI.updateOutfieldAI(p, this.ball, false, dt, this.activePlayer);
+                } else if (p.userData.role === 'GK') {
+                    if (window.gameAI) window.gameAI.updateGoalkeeper(p, true, this.ball, this.ballRadius, this.fieldLength, dt);
+                }
+            });
+        }
 
-            if (dirToBall.length() > 0.8) {
-                bot.position.addScaledVector(dirToBall.normalize(), 8.0 * dt);
-                bot.rotation.y = Math.atan2(dirToBall.x, dirToBall.z);
-            }
-        });
+        // Update away AI opponents (with Goalkeeper bounds)
+        if (this.awayTeamPlayers) {
+            this.awayTeamPlayers.forEach(p => {
+                if (p.userData.role !== 'GK') {
+                    if (window.gameAI) window.gameAI.updateOutfieldAI(p, this.ball, true, dt, null);
+                } else if (p.userData.role === 'GK') {
+                    if (window.gameAI) window.gameAI.updateGoalkeeper(p, false, this.ball, this.ballRadius, this.fieldLength, dt);
+                }
+            });
+        }
     }
 
     updateBallPhysics(dt) {
@@ -689,15 +959,9 @@ class UltraFootballMatch {
             this.lastKickedBy = 'home';
             document.getElementById('hud-active-player').innerText = this.activePlayer.userData.name;
         } else {
-            // Free movement physics
-            this.ball.position.addScaledVector(this.ballVelocity, dt);
-            this.ballVelocity.multiplyScalar(0.97); // Pitch grass friction
-
-            if (b.y > this.ballRadius) {
-                this.ballVelocity.y -= 9.8 * dt; // Gravity
-            } else {
-                b.y = this.ballRadius;
-                this.ballVelocity.y = -this.ballVelocity.y * 0.45; // Bounce
+            // Free movement physics using gamePhysics module
+            if (window.gamePhysics) {
+                window.gamePhysics.updateBall(this.ball, this.ballVelocity, this.ballRadius, this.fieldWidth, this.fieldLength);
             }
 
             // Sync ball online
@@ -740,9 +1004,23 @@ class UltraFootballMatch {
             this.resetBall();
             this.isPlaying = true;
             
-            // Reposition
-            this.homeTeamPlayers[0].position.set(-1, 0, 1);
-            this.awayTeamPlayers[0].position.set(1, 0, -1);
+            // Reposition all 5v5 players correctly
+            if (this.homeTeamPlayers && this.homeTeamPlayers.length >= 5) {
+                this.homeTeamPlayers[0].position.set(0, 0, 27); // GK
+                this.homeTeamPlayers[1].position.set(0, 0, 14); // DF
+                this.homeTeamPlayers[2].position.set(-4, 0, 6); // MF
+                this.homeTeamPlayers[3].position.set(-1, 0, 1); // FW
+                this.homeTeamPlayers[4].position.set(4, 0, 4);  // SUB
+            }
+            if (this.awayTeamPlayers && this.awayTeamPlayers.length >= 5) {
+                this.awayTeamPlayers[0].position.set(0, 0, -27); // GK
+                this.awayTeamPlayers[1].position.set(0, 0, -14); // DF
+                this.awayTeamPlayers[2].position.set(4, 0, -6);  // MF
+                this.awayTeamPlayers[3].position.set(1, 0, -1);  // FW
+                this.awayTeamPlayers[4].position.set(-4, 0, -4); // SUB
+            }
+            // Activate Referee Immunity
+            if (window.gameReferee) window.gameReferee.resetImmunity();
         }, 3500);
     }
 
@@ -770,39 +1048,9 @@ class UltraFootballMatch {
     }
 
     triggerFoul(player) {
-        this.isPlaying = false;
-        try {
-            gameAudio.playWhistle();
-        } catch (e) {
-            console.warn(e);
+        if (window.gameReferee) {
+            window.gameReferee.triggerFoul(player, this);
         }
-
-        const isYellow = Math.random() > 0.4;
-        const overlay = document.getElementById('referee-card-overlay');
-        const cardVisual = document.getElementById('card-type-visual');
-        const playerNameEl = document.getElementById('card-player-name');
-
-        playerNameEl.innerText = player.userData.name;
-        
-        if (isYellow) {
-            cardVisual.className = "ref-card yellow-card";
-            overlay.classList.remove('hidden');
-            this.cardCount.homeYellow++;
-        } else {
-            cardVisual.className = "ref-card red-card";
-            overlay.classList.remove('hidden');
-            this.cardCount.homeRed++;
-            // Send player off
-            setTimeout(() => {
-                player.position.set(0, -50, 0); // Out of field
-            }, 1000);
-        }
-
-        setTimeout(() => {
-            overlay.classList.add('hidden');
-            this.isPlaying = true;
-            this.resetBall();
-        }, 3000);
     }
 
     // ---------------------------------------------------
@@ -849,6 +1097,13 @@ class UltraFootballMatch {
         // Player slides forward
         const slideDir = new THREE.Vector3(0, 0, 0.8).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.activePlayer.rotation.y);
         this.activePlayer.position.addScaledVector(slideDir, 5.0);
+        this.activePlayer.userData.isSliding = true;
+
+        setTimeout(() => {
+            if (this.activePlayer && this.activePlayer.userData) {
+                this.activePlayer.userData.isSliding = false;
+            }
+        }, 600);
 
         // Check if hit opponent (Steal ball and stun bot)
         this.awayTeamPlayers.forEach(bot => {
@@ -962,6 +1217,7 @@ class UltraFootballMatch {
             if (k === 's') this.keys.s = true;
             if (k === 'a') this.keys.a = true;
             if (k === 'd') this.keys.d = true;
+            if (k === 'q') this.switchActivePlayer(); // Switch controlled teammate
             if (k === 'k') this.executePass();
             if (k === 'i') this.executeThroughPass();
             if (k === 'o') this.executeShoot();
@@ -975,41 +1231,35 @@ class UltraFootballMatch {
             if (k === 'd') this.keys.d = false;
         });
 
-        // Mobile hud buttons
-        document.getElementById('btn-shoot').addEventListener('pointerdown', () => this.executeShoot());
-        document.getElementById('btn-through').addEventListener('pointerdown', () => this.executeThroughPass());
-        document.getElementById('btn-pass').addEventListener('pointerdown', () => this.executePass());
+        // Mobile HUD buttons
+        const btnShoot = document.getElementById('btn-shoot');
+        if (btnShoot) btnShoot.addEventListener('pointerdown', () => this.executeShoot());
         
-        // Sprint button increases stamina consumption momentarily
-        document.getElementById('btn-sprint').addEventListener('pointerdown', () => {
-            this.stamina = Math.max(0, this.stamina - 20);
-        });
-
-        // Team selection choices
-        document.querySelectorAll('.team-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.team-btn').forEach(b => b.classList.remove('active'));
-                const t = e.currentTarget;
-                t.classList.add('active');
-                this.selectedTeam = t.dataset.team;
-                this.selectedTeamName = t.dataset.team === 'POR' ? 'PORTUGAL' : t.dataset.team === 'BRA' ? 'BRAZIL' : t.dataset.team === 'ESP' ? 'SPAIN' : 'USA';
-                this.opponentTeamName = t.dataset.opp === 'BRA' ? 'BRAZIL' : t.dataset.opp === 'POR' ? 'PORTUGAL' : 'MEXICO';
-
-                // Display updates
-                document.getElementById('hud-home-name').innerText = this.selectedTeam;
-                document.getElementById('hud-away-name').innerText = t.dataset.opp;
+        const btnThrough = document.getElementById('btn-through');
+        if (btnThrough) btnThrough.addEventListener('pointerdown', () => this.executeThroughPass());
+        
+        const btnPass = document.getElementById('btn-pass');
+        if (btnPass) btnPass.addEventListener('pointerdown', () => this.executePass());
+        
+        const btnSprint = document.getElementById('btn-sprint');
+        if (btnSprint) {
+            btnSprint.addEventListener('pointerdown', () => {
+                this.stamina = Math.max(0, this.stamina - 20);
             });
-        });
+        }
 
-        document.getElementById('start-game-btn').addEventListener('click', () => {
-            document.getElementById('main-menu').classList.add('hidden');
-            this.startWalkoutCinematic();
-        });
+        const btnSwitch = document.getElementById('btn-switch');
+        if (btnSwitch) {
+            btnSwitch.addEventListener('pointerdown', () => {
+                this.switchActivePlayer();
+            });
+        }
 
-        const skipBtn = document.getElementById('skip-walkout-btn');
-        if (skipBtn) {
-            skipBtn.addEventListener('click', () => {
-                this.skipWalkout();
+        // Scoreboard Menu Button (Pause Game)
+        const menuBtn = document.getElementById('menu-btn');
+        if (menuBtn) {
+            menuBtn.addEventListener('click', () => {
+                if (window.gameMenu) window.gameMenu.showScreen('main-menu');
             });
         }
     }
