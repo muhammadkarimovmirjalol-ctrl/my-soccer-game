@@ -62,6 +62,26 @@
                             <button class="weather-btn" data-weather="desert"><i class="fa-solid fa-wind"></i> Desert Arena</button>
                         </div>
                     </div>
+
+                    <!-- Game Mode Selector -->
+                    <div class="selection-section">
+                        <label><i class="fa-solid fa-gamepad"></i> O'yin rejimi:</label>
+                        <div class="mode-grid">
+                            <button class="mode-btn active" data-mode="match"><i class="fa-solid fa-trophy"></i> Tezkor O'yin</button>
+                            <button class="mode-btn" data-mode="training"><i class="fa-solid fa-dumbbell"></i> Mashq maydoni</button>
+                        </div>
+                    </div>
+
+                    <!-- Training Drills Picker -->
+                    <div class="selection-section hidden" id="drills-section">
+                        <label><i class="fa-solid fa-dumbbell"></i> Mashg'ulot turini tanlang:</label>
+                        <div class="drills-grid">
+                            <button class="drill-btn active" data-drill="dribble"><i class="fa-solid fa-shuffle"></i> Aldashib o'tish (Zig-zag)</button>
+                            <button class="drill-btn" data-drill="pass"><i class="fa-solid fa-arrows-spin"></i> To'p uzatish (Precision)</button>
+                            <button class="drill-btn" data-drill="shoot"><i class="fa-solid fa-bullseye"></i> Gol urish (Targets)</button>
+                            <button class="drill-btn" data-drill="tackle"><i class="fa-solid fa-shield-halved"></i> Podkat mashqi (Tackling)</button>
+                        </div>
+                    </div>
                 </div>
 
                 <button id="start-game-btn" class="glow-btn">

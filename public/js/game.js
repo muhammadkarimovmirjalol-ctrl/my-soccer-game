@@ -102,6 +102,8 @@ class UltraFootballMatch {
         this.selectedTeam = 'POR';
         this.selectedOpponent = 'BRA';
         this.weather = 'night';
+        this.selectedMode = 'match'; // 'match' or 'training'
+        this.selectedDrill = 'dribble'; // 'dribble', 'pass', 'shoot', 'tackle'
         this.isTraining = false;
 
         // Scores & Time
@@ -444,6 +446,11 @@ class UltraFootballMatch {
             this.updateHUD(dt);
             this.checkTackleFouls(dt);
             this.updateWeatherParticles();
+
+            // Run training logic if training mode is active
+            if (this.selectedMode === 'training') {
+                this.checkTrainingCollisions(dt);
+            }
         }
 
         // Update indicator pointer above player
@@ -514,7 +521,9 @@ class UltraFootballMatch {
             if (p.userData.role === 'GK') {
                 this.runGoalkeeperAI(p, false, dt);
             } else {
-                this.runTeammateAI(p, true, dt);
+                if (this.selectedMode !== 'training') {
+                    this.runTeammateAI(p, true, dt);
+                }
             }
         });
     }
@@ -958,6 +967,33 @@ class UltraFootballMatch {
             });
         });
 
+        // Mode selectors (Quick Match vs Training Ground)
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+                const t = e.currentTarget;
+                t.classList.add('active');
+                this.selectedMode = t.dataset.mode;
+                
+                const drillsSec = document.getElementById('drills-section');
+                if (this.selectedMode === 'training') {
+                    drillsSec.classList.remove('hidden');
+                } else {
+                    drillsSec.classList.add('hidden');
+                }
+            });
+        });
+
+        // Drill selectors
+        document.querySelectorAll('.drill-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.drill-btn').forEach(b => b.classList.remove('active'));
+                const t = e.currentTarget;
+                t.classList.add('active');
+                this.selectedDrill = t.dataset.drill;
+            });
+        });
+
         document.getElementById('start-game-btn').addEventListener('click', () => {
             document.getElementById('main-menu').classList.add('hidden');
             document.getElementById('game-hud').classList.remove('hidden');
@@ -978,18 +1014,23 @@ class UltraFootballMatch {
             this.awayScore = 0;
             this.matchTime = 0;
             this.stamina = 100;
+            this.isTraining = (this.selectedMode === 'training');
             
-            // Build players & trigger kickoff whistle
+            // Build players, load training props & trigger kickoff whistle
             this.buildPlayers();
             this.resetBall();
+            this.buildTrainingProps();
 
             gameAudio.playWhistle();
 
             const banner = document.getElementById('referee-whistle-banner');
-            banner.classList.remove('hidden');
-            setTimeout(() => {
-                banner.classList.add('hidden');
-            }, 2000);
+            if (banner) {
+                banner.innerHTML = `<i class="fa-solid fa-bullhorn"></i> ${this.isTraining ? 'TRAINING STARTED!' : 'MATCH STARTED!'} 🏁`;
+                banner.classList.remove('hidden');
+                setTimeout(() => {
+                    banner.classList.add('hidden');
+                }, 2000);
+            }
 
             this.isPlaying = true;
         });
@@ -999,6 +1040,11 @@ class UltraFootballMatch {
         });
 
         document.getElementById('restart-game-btn').addEventListener('click', () => {
+            // Remove training props on exit
+            if (this.trainingProps) {
+                this.trainingProps.forEach(obj => this.scene.remove(obj));
+                this.trainingProps = [];
+            }
             document.getElementById('game-over-modal').classList.add('hidden');
             document.getElementById('main-menu').classList.remove('hidden');
         });
@@ -1040,6 +1086,229 @@ class UltraFootballMatch {
             document.getElementById('main-menu').classList.remove('hidden');
         })
         .catch(err => alert("Natija saqlashda xatolik yuz berdi."));
+    }
+
+    buildTrainingProps() {
+        if (this.trainingProps) {
+            this.trainingProps.forEach(obj => this.scene.remove(obj));
+        }
+        this.trainingProps = [];
+
+        if (this.selectedMode !== 'training') return;
+
+        console.log(`[Training] Spawning props for drill: ${this.selectedDrill}`);
+
+        if (this.selectedDrill === 'dribble') {
+            const conePoints = [
+                { x: 0, z: 10 },
+                { x: 4, z: 16 },
+                { x: -4, z: 22 },
+                { x: 4, z: 28 },
+                { x: -4, z: 34 },
+                { x: 4, z: 40 },
+                { x: 0, z: 46 }
+            ];
+
+            conePoints.forEach(pos => {
+                const group = new THREE.Group();
+                const base = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.8, 0.1, 0.8),
+                    new THREE.MeshStandardMaterial({ color: 0xff4500, roughness: 0.5 })
+                );
+                const body = new THREE.Mesh(
+                    new THREE.ConeGeometry(0.25, 0.7, 8),
+                    new THREE.MeshStandardMaterial({ color: 0xff4500, roughness: 0.5 })
+                );
+                body.position.y = 0.35;
+                const stripe = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.12, 0.16, 0.15, 8),
+                    new THREE.MeshStandardMaterial({ color: 0xffffff })
+                );
+                stripe.position.y = 0.35;
+
+                group.add(base, body, stripe);
+                group.position.set(pos.x, 0.05, pos.z);
+                this.scene.add(group);
+                this.trainingProps.push(group);
+            });
+        } 
+        else if (this.selectedDrill === 'pass') {
+            const ringPoints = [
+                { x: -12, z: 15 },
+                { x: 12, z: 25 },
+                { x: -6, z: 35 }
+            ];
+
+            ringPoints.forEach(pos => {
+                const geo = new THREE.RingGeometry(1.6, 1.8, 16);
+                geo.rotateX(-Math.PI / 2);
+                const mat = new THREE.MeshBasicMaterial({ color: 0x02f87b, side: THREE.DoubleSide });
+                const ring = new THREE.Mesh(geo, mat);
+                ring.position.set(pos.x, 0.08, pos.z);
+                this.scene.add(ring);
+
+                ring.userData = { type: 'ring', collected: false };
+                this.trainingProps.push(ring);
+            });
+        }
+        else if (this.selectedDrill === 'shoot') {
+            const targetPoints = [
+                { x: -4.2, y: 4.2, z: 54.8 },
+                { x: 4.2, y: 4.2, z: 54.8 },
+                { x: 0, y: 2.2, z: 54.8 }
+            ];
+
+            targetPoints.forEach(pos => {
+                const group = new THREE.Group();
+                const box = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.9, 0.9, 0.15),
+                    new THREE.MeshStandardMaterial({ color: 0xff4500, roughness: 0.2 })
+                );
+                const dot = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.25, 0.25, 0.2, 8),
+                    new THREE.MeshStandardMaterial({ color: 0xffffff })
+                );
+                dot.rotation.x = Math.PI / 2;
+
+                group.add(box, dot);
+                group.position.set(pos.x, pos.y, pos.z);
+                this.scene.add(group);
+
+                group.userData = { type: 'target', hit: false };
+                this.trainingProps.push(group);
+            });
+        }
+        else if (this.selectedDrill === 'tackle') {
+            const dummyPoints = [
+                { x: -5, z: 12 },
+                { x: 5, z: 24 },
+                { x: 0, z: 36 }
+            ];
+
+            dummyPoints.forEach(pos => {
+                const group = new THREE.Group();
+                const body = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.3, 0.3, 1.4, 12),
+                    new THREE.MeshStandardMaterial({ color: 0xdddddd, roughness: 0.9 })
+                );
+                body.position.y = 0.7;
+                const stripe = new THREE.Mesh(
+                    new THREE.CylinderGeometry(0.31, 0.31, 0.2, 12),
+                    new THREE.MeshStandardMaterial({ color: 0xff0000 })
+                );
+                stripe.position.y = 0.7;
+                const head = new THREE.Mesh(
+                    new THREE.SphereGeometry(0.2, 12, 12),
+                    new THREE.MeshStandardMaterial({ color: 0xbbbbbb })
+                );
+                head.position.y = 1.5;
+
+                group.add(body, stripe, head);
+                group.position.set(pos.x, 0.05, pos.z);
+                this.scene.add(group);
+
+                group.userData = { type: 'dummy', hit: false };
+                this.trainingProps.push(group);
+            });
+        }
+    }
+
+    checkTrainingCollisions(dt) {
+        if (!this.trainingProps) return;
+
+        const player = this.activePlayer;
+        const ball = this.ball;
+
+        if (this.selectedDrill === 'dribble') {
+            this.trainingProps.forEach(cone => {
+                const dist = player.position.distanceTo(cone.position);
+                if (dist < 0.9) {
+                    const pushDir = player.position.clone().sub(cone.position).normalize();
+                    player.position.addScaledVector(pushDir, 0.4);
+                    this.stamina = Math.max(0, this.stamina - 15);
+                    console.log("[Drill] Cone touched! Penalty!");
+                }
+            });
+        }
+        else if (this.selectedDrill === 'pass') {
+            this.trainingProps.forEach(ring => {
+                if (!ring.userData.collected) {
+                    const dist = ball.position.distanceTo(ring.position);
+                    if (dist < 2.0) {
+                        ring.userData.collected = true;
+                        this.homeScore++;
+                        document.getElementById('hud-home-score').innerText = this.homeScore;
+                        gameAudio.playWhistle();
+                        
+                        if (window.confetti) window.confetti({ particleCount: 30, spread: 45 });
+
+                        setTimeout(() => {
+                            ring.position.set(
+                                Math.random() * 40 - 20,
+                                0.08,
+                                Math.random() * 30 + 10
+                            );
+                            ring.userData.collected = false;
+                        }, 1200);
+                    }
+                }
+            });
+        }
+        else if (this.selectedDrill === 'shoot') {
+            this.trainingProps.forEach(target => {
+                if (!target.userData.hit) {
+                    const dist = ball.position.distanceTo(target.position);
+                    if (dist < 1.15) {
+                        target.userData.hit = true;
+                        this.homeScore++;
+                        document.getElementById('hud-home-score').innerText = this.homeScore;
+                        gameAudio.playWhistle();
+                        if (window.confetti) window.confetti({ particleCount: 80, spread: 60 });
+
+                        target.position.y = -10;
+                        setTimeout(() => {
+                            target.position.set(
+                                Math.random() > 0.5 ? -4.2 : 4.2,
+                                Math.random() > 0.5 ? 4.2 : 2.0,
+                                54.8
+                            );
+                            target.userData.hit = false;
+                        }, 2000);
+                    }
+                }
+            });
+        }
+        else if (this.selectedDrill === 'tackle') {
+            this.trainingProps.forEach(dummy => {
+                if (!dummy.userData.hit && player.userData.isSliding) {
+                    const dist = player.position.distanceTo(dummy.position);
+                    if (dist < 1.6) {
+                        dummy.userData.hit = true;
+                        this.homeScore++;
+                        document.getElementById('hud-home-score').innerText = this.homeScore;
+                        gameAudio.playKick();
+                        
+                        const spinInterval = setInterval(() => {
+                            dummy.rotation.z += 0.15;
+                            dummy.position.y -= 0.05;
+                            if (dummy.position.y < -1) {
+                                clearInterval(spinInterval);
+                            }
+                        }, 30);
+
+                        setTimeout(() => {
+                            dummy.position.set(
+                                Math.random() * 30 - 15,
+                                0.05,
+                                Math.random() * 30 + 10
+                            );
+                            dummy.rotation.set(0, 0, 0);
+                            dummy.userData.hit = false;
+                        }, 3000);
+                    }
+                }
+            });
+        }
     }
 }
 
