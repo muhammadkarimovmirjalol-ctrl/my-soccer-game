@@ -227,21 +227,111 @@ class UltraFootballMatch {
     }
 
     buildStadium() {
-        // Turf pitch
+        if (this.pitch) {
+            this.scene.remove(this.pitch);
+            if (this.pitch.geometry) this.pitch.geometry.dispose();
+            if (this.pitch.material) {
+                if (this.pitch.material.map) this.pitch.material.map.dispose();
+                this.pitch.material.dispose();
+            }
+        }
+
+        const texture = this.generateFieldTexture();
         const pitchGeo = new THREE.PlaneGeometry(this.fieldWidth + 20, this.fieldLength + 20);
         const pitchMat = new THREE.MeshStandardMaterial({
-            color: this.weather === 'desert' ? 0xd2b48c : 0x1f5c22,
-            roughness: 0.9
+            map: texture,
+            roughness: 0.85
         });
-        const pitch = new THREE.Mesh(pitchGeo, pitchMat);
-        pitch.rotation.x = -Math.PI / 2;
-        pitch.receiveShadow = true;
-        this.scene.add(pitch);
+        
+        this.pitch = new THREE.Mesh(pitchGeo, pitchMat);
+        this.pitch.rotation.x = -Math.PI / 2;
+        this.pitch.receiveShadow = true;
+        this.scene.add(this.pitch);
+    }
 
-        // Grid lines helper
-        const gridLines = new THREE.GridHelper(120, 30, 0xffffff, 0x334e35);
-        gridLines.position.y = 0.01;
-        this.scene.add(gridLines);
+    generateFieldTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 1024;
+        canvas.height = 2048;
+        const ctx = canvas.getContext('2d');
+
+        const isDesert = (this.weather === 'desert');
+        const isRain = (this.weather === 'rain');
+
+        // Choose beautiful alternating stripe shades based on stadium theme
+        let col1 = '#1d5422';
+        let col2 = '#236128';
+        if (isDesert) {
+            col1 = '#d8b68a';
+            col2 = '#cfab7f';
+        } else if (isRain) {
+            col1 = '#133d17';
+            col2 = '#184b1d';
+        }
+
+        ctx.fillStyle = col1;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // 18 grass lawn stripes
+        const stripes = 18;
+        const stripeHeight = canvas.height / stripes;
+        for (let i = 0; i < stripes; i++) {
+            ctx.fillStyle = (i % 2 === 0) ? col2 : col1;
+            ctx.fillRect(0, i * stripeHeight, canvas.width, stripeHeight);
+        }
+
+        // Draw professional white soccer lines
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
+        ctx.lineWidth = 14;
+
+        const padX = 40;
+        const padY = 60;
+        const w = canvas.width - padX * 2;
+        const h = canvas.height - padY * 2;
+
+        // Touchline outer box
+        ctx.strokeRect(padX, padY, w, h);
+
+        // Center line
+        ctx.beginPath();
+        ctx.moveTo(padX, canvas.height / 2);
+        ctx.lineTo(canvas.width - padX, canvas.height / 2);
+        ctx.stroke();
+
+        // Center circle
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, 160, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Center spot
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height / 2, 10, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Penalty boxes
+        const boxWidth = 440;
+        const boxHeight = 220;
+        const goalAreaWidth = 180;
+        const goalAreaHeight = 70;
+
+        // Bottom Penalty Box (Home)
+        ctx.strokeRect(canvas.width / 2 - boxWidth / 2, canvas.height - padY - boxHeight, boxWidth, boxHeight);
+        ctx.strokeRect(canvas.width / 2 - goalAreaWidth / 2, canvas.height - padY - goalAreaHeight, goalAreaWidth, goalAreaHeight);
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, canvas.height - padY - boxHeight, 70, Math.PI, 2 * Math.PI);
+        ctx.stroke();
+
+        // Top Penalty Box (Away)
+        ctx.strokeRect(canvas.width / 2 - boxWidth / 2, padY, boxWidth, boxHeight);
+        ctx.strokeRect(canvas.width / 2 - goalAreaWidth / 2, padY, goalAreaWidth, goalAreaHeight);
+        ctx.beginPath();
+        ctx.arc(canvas.width / 2, padY + boxHeight, 70, 0, Math.PI);
+        ctx.stroke();
+
+        const tex = new THREE.CanvasTexture(canvas);
+        tex.anisotropy = 4;
+        return tex;
     }
 
     buildGoals() {
@@ -899,10 +989,10 @@ class UltraFootballMatch {
     setupEventListeners() {
         window.addEventListener('keydown', (e) => {
             const k = e.key.toLowerCase();
-            if (k === 'w') this.keys.w = true;
-            if (k === 's') this.keys.s = true;
-            if (k === 'a') this.keys.a = true;
-            if (k === 'd') this.keys.d = true;
+            if (k === 'w' || e.key === 'ArrowUp') this.keys.w = true;
+            if (k === 's' || e.key === 'ArrowDown') this.keys.s = true;
+            if (k === 'a' || e.key === 'ArrowLeft') this.keys.a = true;
+            if (k === 'd' || e.key === 'ArrowRight') this.keys.d = true;
             if (k === 'q') this.switchActivePlayer();
             if (k === 'k') this.executePass();
             if (k === 'i') this.executeThroughPass();
@@ -912,10 +1002,10 @@ class UltraFootballMatch {
 
         window.addEventListener('keyup', (e) => {
             const k = e.key.toLowerCase();
-            if (k === 'w') this.keys.w = false;
-            if (k === 's') this.keys.s = false;
-            if (k === 'a') this.keys.a = false;
-            if (k === 'd') this.keys.d = false;
+            if (k === 'w' || e.key === 'ArrowUp') this.keys.w = false;
+            if (k === 's' || e.key === 'ArrowDown') this.keys.s = false;
+            if (k === 'a' || e.key === 'ArrowLeft') this.keys.a = false;
+            if (k === 'd' || e.key === 'ArrowRight') this.keys.d = false;
         });
 
         // Mobile buttons
