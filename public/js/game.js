@@ -400,14 +400,67 @@ class UltraFootballMatch {
     }
 
     buildBall() {
+        const tex = this.generateBallTexture();
         const ballGeo = new THREE.SphereGeometry(this.ballRadius, 16, 16);
-        const ballMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.1 });
+        const ballMat = new THREE.MeshStandardMaterial({
+            map: tex,
+            roughness: 0.15
+        });
         this.ball = new THREE.Mesh(ballGeo, ballMat);
         this.ball.castShadow = true;
         this.ball.position.set(0, this.ballRadius, 0);
         this.scene.add(this.ball);
 
         this.ballVelocity = new THREE.Vector3(0, 0, 0);
+    }
+
+    generateBallTexture() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+
+        // White ball base
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Draw classic Telstar soccer spots
+        ctx.fillStyle = '#1e1e24';
+        const rows = 4;
+        const cols = 8;
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                if ((r + c) % 2 === 0) {
+                    const x = (c + 0.5) * (canvas.width / cols);
+                    const y = (r + 0.5) * (canvas.height / rows);
+                    
+                    // pentagon center spot
+                    ctx.beginPath();
+                    ctx.arc(x, y, 22, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // seam outline
+                    ctx.strokeStyle = '#cccccc';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 32, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Seams grid lines
+        ctx.strokeStyle = '#e0e0e0';
+        ctx.lineWidth = 1.5;
+        for (let i = 0; i < canvas.width; i += 64) {
+            ctx.beginPath();
+            ctx.moveTo(i, 0);
+            ctx.lineTo(i, canvas.height);
+            ctx.stroke();
+        }
+
+        const texture = new THREE.CanvasTexture(canvas);
+        return texture;
     }
 
     buildPlayers() {
@@ -457,27 +510,85 @@ class UltraFootballMatch {
 
     createPlayerMesh(shirtColor, role, name) {
         const group = new THREE.Group();
+
+        // 1. Torso Jersey
+        const torsoMat = new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.58 });
         const torso = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.26, 0.22, 1.2, 12),
-            new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.6 })
+            new THREE.CylinderGeometry(0.24, 0.18, 0.9, 10),
+            torsoMat
         );
-        torso.position.y = 0.8;
+        torso.position.y = 0.95;
         torso.castShadow = true;
+        group.add(torso);
 
-        const head = new THREE.Mesh(
-            new THREE.SphereGeometry(0.18, 12, 12),
-            new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.8 })
-        );
-        head.position.y = 1.5;
-
+        // 2. Shorts
+        const shortsMat = new THREE.MeshStandardMaterial({ color: 0x1b1e22, roughness: 0.65 });
         const shorts = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.25, 0.25, 0.3, 12),
-            new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.7 })
+            new THREE.CylinderGeometry(0.23, 0.23, 0.25, 10),
+            shortsMat
         );
-        shorts.position.y = 0.4;
+        shorts.position.y = 0.55;
+        group.add(shorts);
 
-        group.add(torso, head, shorts);
-        
+        // 3. Head & skin
+        const skinMat = new THREE.MeshStandardMaterial({ color: 0xffe0bd, roughness: 0.72 });
+        const head = new THREE.Mesh(
+            new THREE.SphereGeometry(0.18, 10, 10),
+            skinMat
+        );
+        head.position.y = 1.55;
+        group.add(head);
+
+        // 4. Hair (low poly hair block)
+        const hairMat = new THREE.MeshStandardMaterial({ color: 0x2d1d17, roughness: 0.8 });
+        const hair = new THREE.Mesh(
+            new THREE.SphereGeometry(0.19, 8, 8),
+            hairMat
+        );
+        hair.position.set(0, 1.63, -0.04);
+        group.add(hair);
+
+        // 5. Left Leg & Boot (White Socks + Black Shoes)
+        const socksMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
+        const bootsMat = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.45 });
+
+        const leftLeg = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.08, 0.08, 0.45, 8),
+            socksMat
+        );
+        leftLeg.position.set(-0.12, 0.28, 0);
+        group.add(leftLeg);
+
+        const leftBoot = new THREE.Mesh(
+            new THREE.BoxGeometry(0.12, 0.1, 0.25),
+            bootsMat
+        );
+        leftBoot.position.set(-0.12, 0.05, 0.06);
+        group.add(leftBoot);
+
+        // 6. Right Leg & Boot
+        const rightLeg = leftLeg.clone();
+        rightLeg.position.set(0.12, 0.28, 0);
+        group.add(rightLeg);
+
+        const rightBoot = leftBoot.clone();
+        rightBoot.position.set(0.12, 0.05, 0.06);
+        group.add(rightBoot);
+
+        // 7. Arms
+        const leftArm = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.07, 0.07, 0.6, 8),
+            torsoMat
+        );
+        leftArm.position.set(-0.34, 1.0, 0);
+        leftArm.rotation.z = 0.2;
+        group.add(leftArm);
+
+        const rightArm = leftArm.clone();
+        rightArm.position.set(0.34, 1.0, 0);
+        rightArm.rotation.z = -0.2;
+        group.add(rightArm);
+
         group.userData = {
             role,
             name,
