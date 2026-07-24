@@ -105,6 +105,8 @@ class UltraFootballMatch {
         this.selectedMode = 'match'; // 'match' or 'training'
         this.selectedDrill = 'dribble'; // 'dribble', 'pass', 'shoot', 'tackle'
         this.isTraining = false;
+        this.cameraModes = ['broadcast', 'action', 'tactical'];
+        this.cameraModeIdx = 0;
 
         // States
         this.homeScore = 0;
@@ -219,6 +221,11 @@ class UltraFootballMatch {
             }
         }
 
+        if (this.stands) {
+            this.stands.forEach(obj => this.scene.remove(obj));
+        }
+        this.stands = [];
+
         const texture = this.generateFieldTexture();
         const pitchGeo = new THREE.PlaneGeometry(this.fieldWidth + 20, this.fieldLength + 20);
         const pitchMat = new THREE.MeshStandardMaterial({
@@ -230,6 +237,55 @@ class UltraFootballMatch {
         this.pitch.rotation.x = -Math.PI / 2;
         this.pitch.receiveShadow = true;
         this.scene.add(this.pitch);
+
+        // Build sideline stands
+        const standMat = new THREE.MeshStandardMaterial({ color: 0x1f232a, roughness: 0.8 });
+        
+        const leftStand = new THREE.Mesh(
+            new THREE.BoxGeometry(8, 5, this.fieldLength + 10),
+            standMat
+        );
+        leftStand.position.set(-this.fieldWidth/2 - 7, 2.5, 0);
+        leftStand.receiveShadow = true;
+        this.scene.add(leftStand);
+        this.stands.push(leftStand);
+
+        const rightStand = new THREE.Mesh(
+            new THREE.BoxGeometry(8, 5, this.fieldLength + 10),
+            standMat
+        );
+        rightStand.position.set(this.fieldWidth/2 + 7, 2.5, 0);
+        rightStand.receiveShadow = true;
+        this.scene.add(rightStand);
+        this.stands.push(rightStand);
+
+        // Populate colorful crowd capsule spectators
+        const specGeo = new THREE.SphereGeometry(0.18, 6, 6);
+        const colors = [0xff3333, 0x3333ff, 0x33ff33, 0xffff33, 0xff33ff, 0x33ffff, 0xffffff, 0xaaaaaa];
+        
+        for (let z = -this.fieldLength/2; z < this.fieldLength/2; z += 3.8) {
+            // Left stands fans
+            const f1 = new THREE.Mesh(specGeo, new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random()*colors.length)] }));
+            f1.position.set(-this.fieldWidth/2 - 5.5, 5.2, z);
+            this.scene.add(f1);
+            this.stands.push(f1);
+
+            const f2 = new THREE.Mesh(specGeo, new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random()*colors.length)] }));
+            f2.position.set(-this.fieldWidth/2 - 7.5, 5.6, z + 1);
+            this.scene.add(f2);
+            this.stands.push(f2);
+
+            // Right stands fans
+            const f3 = new THREE.Mesh(specGeo, new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random()*colors.length)] }));
+            f3.position.set(this.fieldWidth/2 + 5.5, 5.2, z);
+            this.scene.add(f3);
+            this.stands.push(f3);
+
+            const f4 = new THREE.Mesh(specGeo, new THREE.MeshBasicMaterial({ color: colors[Math.floor(Math.random()*colors.length)] }));
+            f4.position.set(this.fieldWidth/2 + 7.5, 5.6, z + 1);
+            this.scene.add(f4);
+            this.stands.push(f4);
+        }
     }
 
     generateFieldTexture() {
@@ -514,6 +570,7 @@ class UltraFootballMatch {
             this.updateHUD(dt);
             this.checkTackleFouls(dt);
             this.updateWeatherParticles();
+            this.updateRadar();
 
             if (this.selectedMode === 'training') {
                 this.checkTrainingCollisions(dt);
@@ -726,9 +783,123 @@ class UltraFootballMatch {
     }
 
     updateCamera() {
-        const target = this.activePlayer.position.clone().add(this.cameraOffset);
-        this.camera.position.lerp(target, 0.1);
-        this.camera.lookAt(this.activePlayer.position.x, 1.0, this.activePlayer.position.z - 4);
+        const mode = this.cameraModes[this.cameraModeIdx];
+        const targetPos = new THREE.Vector3();
+
+        if (mode === 'broadcast') {
+            targetPos.set(this.activePlayer.position.x, 14, this.activePlayer.position.z + 18);
+            this.camera.position.lerp(targetPos, 0.1);
+            this.camera.lookAt(this.activePlayer.position.x, 1.0, this.activePlayer.position.z - 3);
+        } else if (mode === 'action') {
+            const angle = this.activePlayer.rotation.y;
+            const backX = this.activePlayer.position.x - Math.sin(angle) * 7.5;
+            const backZ = this.activePlayer.position.z - Math.cos(angle) * 7.5;
+            targetPos.set(backX, 4.5, backZ);
+            this.camera.position.lerp(targetPos, 0.15);
+            this.camera.lookAt(this.activePlayer.position.x + Math.sin(angle) * 3, 1.2, this.activePlayer.position.z + Math.cos(angle) * 3);
+        } else if (mode === 'tactical') {
+            targetPos.set(this.activePlayer.position.x, 28, this.activePlayer.position.z + 0.1);
+            this.camera.position.lerp(targetPos, 0.08);
+            this.camera.lookAt(this.activePlayer.position.x, 0, this.activePlayer.position.z);
+        }
+    }
+
+    executeFeint() {
+        if (!this.activePlayer || this.activePlayer.userData.stunTime > 0 || this.activePlayer.userData.isFeinting) return;
+        this.activePlayer.userData.isFeinting = true;
+
+        const origSpeed = this.activePlayer.userData.speed;
+        this.activePlayer.userData.speed = origSpeed * 1.85;
+
+        // Programmatic synth sound (pitch sweep)
+        gameAudio.init();
+        if (gameAudio.ctx) {
+            const now = gameAudio.ctx.currentTime;
+            const osc = gameAudio.ctx.createOscillator();
+            const gain = gameAudio.ctx.createGain();
+            osc.frequency.setValueAtTime(450, now);
+            osc.frequency.exponentialRampToValueAtTime(1100, now + 0.22);
+            gain.gain.setValueAtTime(0.12, now);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+            osc.connect(gain);
+            gain.connect(gameAudio.ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.25);
+        }
+
+        // Spin player
+        let spinCount = 0;
+        const spinInterval = setInterval(() => {
+            if (this.activePlayer) {
+                this.activePlayer.rotation.y += 0.63;
+            }
+            spinCount++;
+            if (spinCount >= 10) {
+                clearInterval(spinInterval);
+                if (this.activePlayer && this.activePlayer.userData) {
+                    this.activePlayer.userData.isFeinting = false;
+                    this.activePlayer.userData.speed = origSpeed;
+                }
+            }
+        }, 25);
+    }
+
+    updateRadar() {
+        const canvas = document.getElementById('radar-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Radar background and field boundaries
+        ctx.fillStyle = 'rgba(3, 6, 12, 0.65)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(8, 8, canvas.width - 16, canvas.height - 16);
+
+        ctx.beginPath();
+        ctx.moveTo(8, canvas.height / 2);
+        ctx.lineTo(canvas.width - 8, canvas.height / 2);
+        ctx.stroke();
+
+        // Mapping coordinate ratio helpers (Field width 70, length 110)
+        const mapX = (x) => {
+            const ratio = (x + 35) / 70;
+            return 8 + ratio * (canvas.width - 16);
+        };
+        const mapZ = (z) => {
+            const ratio = (z + 55) / 110;
+            return 8 + ratio * (canvas.height - 16);
+        };
+
+        // Draw home players (blue / green active)
+        if (this.homeTeamPlayers) {
+            this.homeTeamPlayers.forEach(p => {
+                ctx.fillStyle = (p === this.activePlayer) ? '#02f87b' : '#1e90ff';
+                ctx.beginPath();
+                ctx.arc(mapX(p.position.x), mapZ(p.position.z), (p === this.activePlayer) ? 4.5 : 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Draw away players (red)
+        if (this.awayTeamPlayers && this.selectedMode !== 'training') {
+            this.awayTeamPlayers.forEach(p => {
+                ctx.fillStyle = '#ff3333';
+                ctx.beginPath();
+                ctx.arc(mapX(p.position.x), mapZ(p.position.z), 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+        }
+
+        // Draw ball (white)
+        if (this.ball) {
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(mapX(this.ball.position.x), mapZ(this.ball.position.z), 2.5, 0, Math.PI * 2);
+            ctx.fill();
+        }
     }
 
     updateHUD(dt) {
@@ -927,6 +1098,7 @@ class UltraFootballMatch {
             if (k === 'i') this.executeThroughPass();
             if (k === ' ') this.executeShoot();
             if (k === 'o') this.executeSlideTackle();
+            if (e.key === 'Shift') this.executeFeint();
         });
 
         window.addEventListener('keyup', (e) => {
@@ -944,6 +1116,19 @@ class UltraFootballMatch {
         document.getElementById('btn-sprint').addEventListener('pointerdown', () => {
             this.stamina = Math.max(0, this.stamina - 20);
         });
+        
+        const btnFeint = document.getElementById('btn-feint');
+        if (btnFeint) {
+            btnFeint.addEventListener('pointerdown', () => this.executeFeint());
+        }
+
+        const btnCam = document.getElementById('btn-camera-view');
+        if (btnCam) {
+            btnCam.addEventListener('pointerdown', () => {
+                this.cameraModeIdx = (this.cameraModeIdx + 1) % this.cameraModes.length;
+                console.log(`[Camera] Switch to: ${this.cameraModes[this.cameraModeIdx]}`);
+            });
+        }
 
         document.getElementById('menu-btn').addEventListener('click', () => {
             this.isPlaying = false;

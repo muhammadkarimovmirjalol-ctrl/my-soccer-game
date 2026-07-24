@@ -115,6 +115,9 @@
 
     <!-- In-Game Broadcast HUD Overlay -->
     <div id="game-hud" class="hud-overlay hidden">
+        <!-- 2D Radar Canvas -->
+        <canvas id="radar-canvas" class="radar-canvas" width="140" height="220"></canvas>
+
         <!-- Top Scoreboard Bar -->
         <div class="scoreboard-bar">
             <div class="team-score home">
@@ -131,6 +134,7 @@
                 <span id="hud-away-name" class="team-name">BRA</span>
                 <span class="score-flag" id="hud-away-flag">🇧🇷</span>
             </div>
+            <button id="btn-camera-view" class="scoreboard-menu-btn" style="margin-right: 15px;" title="Camera ko'rinishini o'zgartirish"><i class="fa-solid fa-camera"></i> CAM</button>
             <button id="menu-btn" class="scoreboard-menu-btn"><i class="fa-solid fa-bars"></i></button>
         </div>
 
@@ -162,6 +166,7 @@
             <button id="btn-through" class="fc-btn btn-grey"><span class="btn-label">VPRAREZ</span></button>
             <button id="btn-pass" class="fc-btn btn-blue"><span class="btn-label">PAS</span></button>
             <button id="btn-sprint" class="fc-btn btn-green"><span class="btn-label">RYVOK</span></button>
+            <button id="btn-feint" class="fc-btn btn-orange" style="grid-column: span 3; width: 100%; height: 50px; border-radius: 25px; margin-top: 5px;"><span class="btn-label"><i class="fa-solid fa-bolt"></i> ALDASH (FEINT)</span></button>
         </div>
 
         <!-- Bottom Active Player Badge -->
