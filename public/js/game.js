@@ -987,6 +987,12 @@ class UltraFootballMatch {
         gameAudio.playGoalSound();
         if (window.confetti) window.confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
 
+        const speedText = document.getElementById('goal-speed-text');
+        if (speedText) {
+            const scorerName = isHome ? this.activePlayer.userData.name : "OPPONENT FW";
+            speedText.innerHTML = `GOL MUALLIFI: <span style="color:#02f87b; font-weight:900">${scorerName}</span> ⚽🔥`;
+        }
+
         const overlay = document.getElementById('goal-announcement');
         if (overlay) overlay.classList.remove('hidden');
 
