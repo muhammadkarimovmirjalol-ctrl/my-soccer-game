@@ -589,6 +589,56 @@ class UltraFootballMatch {
         rightArm.rotation.z = -0.2;
         group.add(rightArm);
 
+        // 8. Face Eyes (Black spheres looking forward Z > 0)
+        const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const eyeGeo = new THREE.SphereGeometry(0.03, 4, 4);
+        
+        const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+        leftEye.position.set(-0.06, 1.58, 0.15);
+        group.add(leftEye);
+
+        const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+        rightEye.position.set(0.06, 1.58, 0.15);
+        group.add(rightEye);
+
+        // 9. Hands (Skin colored spheres at the end of arms)
+        const handGeo = new THREE.SphereGeometry(0.05, 6, 6);
+        
+        const leftHand = new THREE.Mesh(handGeo, skinMat);
+        leftHand.position.set(-0.38, 0.72, 0.05);
+        group.add(leftHand);
+
+        const rightHand = new THREE.Mesh(handGeo, skinMat);
+        rightHand.position.set(0.38, 0.72, 0.05);
+        group.add(rightHand);
+
+        // 10. Back Jersey Squad Number (Z < 0)
+        let numStr = "10";
+        if (role === 'GK') numStr = "1";
+        else if (role === 'DF') numStr = "4";
+        else if (role === 'FW') numStr = "7";
+        else if (role === 'SUB') numStr = "12";
+
+        const numCanvas = document.createElement('canvas');
+        numCanvas.width = 64;
+        numCanvas.height = 64;
+        const numCtx = numCanvas.getContext('2d');
+        numCtx.clearRect(0, 0, 64, 64);
+        numCtx.fillStyle = '#ffffff';
+        numCtx.font = 'bold 44px sans-serif';
+        numCtx.textAlign = 'center';
+        numCtx.textBaseline = 'middle';
+        numCtx.fillText(numStr, 32, 32);
+
+        const numTex = new THREE.CanvasTexture(numCanvas);
+        const numPlate = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.24, 0.24),
+            new THREE.MeshBasicMaterial({ map: numTex, transparent: true, side: THREE.DoubleSide })
+        );
+        numPlate.position.set(0, 1.0, -0.25);
+        numPlate.rotation.y = Math.PI;
+        group.add(numPlate);
+
         group.userData = {
             role,
             name,
