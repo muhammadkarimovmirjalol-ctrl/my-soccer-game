@@ -124,7 +124,7 @@ class UltraFootballMatch {
         // Dimensions
         this.fieldWidth = 70;
         this.fieldLength = 110;
-        this.ballRadius = 0.35;
+        this.ballRadius = 0.24;
 
         // Database
         this.teamsDb = {
@@ -548,32 +548,43 @@ class UltraFootballMatch {
         hair.position.set(0, 1.63, -0.04);
         group.add(hair);
 
-        // 5. Left Leg & Boot (White Socks + Black Shoes)
-        const socksMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
-        const bootsMat = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.45 });
+        // 5. Left Leg Group (pivot at hip joint Y = 0.5)
+        const leftLegGroup = new THREE.Group();
+        leftLegGroup.position.set(-0.12, 0.5, 0);
 
         const leftLeg = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.08, 0.08, 0.45, 8),
+            new THREE.CylinderGeometry(0.07, 0.07, 0.4, 8),
             socksMat
         );
-        leftLeg.position.set(-0.12, 0.28, 0);
-        group.add(leftLeg);
+        leftLeg.position.y = -0.2;
+        leftLegGroup.add(leftLeg);
 
         const leftBoot = new THREE.Mesh(
-            new THREE.BoxGeometry(0.12, 0.1, 0.25),
+            new THREE.BoxGeometry(0.1, 0.09, 0.22),
             bootsMat
         );
-        leftBoot.position.set(-0.12, 0.05, 0.06);
-        group.add(leftBoot);
+        leftBoot.position.set(0, -0.42, 0.05);
+        leftLegGroup.add(leftBoot);
+        group.add(leftLegGroup);
 
-        // 6. Right Leg & Boot
-        const rightLeg = leftLeg.clone();
-        rightLeg.position.set(0.12, 0.28, 0);
-        group.add(rightLeg);
+        // 6. Right Leg Group (pivot at hip joint Y = 0.5)
+        const rightLegGroup = new THREE.Group();
+        rightLegGroup.position.set(0.12, 0.5, 0);
 
-        const rightBoot = leftBoot.clone();
-        rightBoot.position.set(0.12, 0.05, 0.06);
-        group.add(rightBoot);
+        const rightLeg = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.07, 0.07, 0.4, 8),
+            socksMat
+        );
+        rightLeg.position.y = -0.2;
+        rightLegGroup.add(rightLeg);
+
+        const rightBoot = new THREE.Mesh(
+            new THREE.BoxGeometry(0.1, 0.09, 0.22),
+            bootsMat
+        );
+        rightBoot.position.set(0, -0.42, 0.05);
+        rightLegGroup.add(rightBoot);
+        group.add(rightLegGroup);
 
         // 7. Arms
         const leftArm = new THREE.Mesh(
@@ -644,7 +655,9 @@ class UltraFootballMatch {
             name,
             speed: 8.5,
             isSliding: false,
-            stunTime: 0
+            stunTime: 0,
+            leftLegGroup,
+            rightLegGroup
         };
 
         return group;
@@ -732,6 +745,7 @@ class UltraFootballMatch {
             this.checkTackleFouls(dt);
             this.updateWeatherParticles();
             this.updateRadar();
+            this.animatePlayerLegs(dt);
 
             if (this.selectedMode === 'training') {
                 this.checkTrainingCollisions(dt);
@@ -1669,6 +1683,45 @@ class UltraFootballMatch {
                 }
             });
         }
+    }
+
+    animatePlayerLegs(dt) {
+        if (!this.homeTeamPlayers || !this.awayTeamPlayers) return;
+        const allPlayers = [...this.homeTeamPlayers, ...this.awayTeamPlayers];
+        allPlayers.forEach(p => {
+            if (!p.userData.leftLegGroup || !p.userData.rightLegGroup) return;
+
+            // Handle sliding pose
+            if (p.userData.isSliding) {
+                p.userData.leftLegGroup.rotation.x = -Math.PI / 3.5;
+                p.userData.rightLegGroup.rotation.x = Math.PI / 4.5;
+                return;
+            }
+
+            // Stunned pose
+            if (p.userData.stunTime > 0) {
+                p.userData.leftLegGroup.rotation.x = 0.2;
+                p.userData.rightLegGroup.rotation.x = -0.2;
+                return;
+            }
+
+            // Measure position changes
+            const prevPos = p.userData.prevPos || p.position.clone();
+            const dist = p.position.distanceTo(prevPos);
+            p.userData.prevPos = p.position.clone();
+
+            if (dist > 0.02) {
+                // Running swing
+                const speedMult = p === this.activePlayer ? 1.5 : 1.1;
+                const cycle = Date.now() * 0.012 * speedMult;
+                p.userData.leftLegGroup.rotation.x = Math.sin(cycle) * 0.65;
+                p.userData.rightLegGroup.rotation.x = -Math.sin(cycle) * 0.65;
+            } else {
+                // Idle recovery
+                p.userData.leftLegGroup.rotation.x = THREE.MathUtils.lerp(p.userData.leftLegGroup.rotation.x, 0, 0.15);
+                p.userData.rightLegGroup.rotation.x = THREE.MathUtils.lerp(p.userData.rightLegGroup.rotation.x, 0, 0.15);
+            }
+        });
     }
 }
 
