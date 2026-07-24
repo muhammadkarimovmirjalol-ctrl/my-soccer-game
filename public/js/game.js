@@ -1,10 +1,10 @@
 // ===================================================
-// FC MOBILE 3D - UNIFIED SOLID GAME ENGINE v3.0
-// Programmatic Audio Synthesizer, 5v5 Formations, Goalkeepers,
-// Active Switching, Weather Physics, and Kickoff Immunity.
+// FC MOBILE 3D - ULTIMATE UNIFIED MATCH ENGINE v3.1
+// Featuring programmatic Canvas pitch, synthesized audio,
+// 5v5 teams, GK box limits, and 4 interactive drills.
 // ===================================================
 
-// --- PROGRAMMATIC AUDIO SYNTHESIZER ---
+// --- PROGRAMMATIC SOUND SYNTHESIZER ---
 class AudioSynth {
     constructor() {
         this.ctx = null;
@@ -24,19 +24,19 @@ class AudioSynth {
         const gain = this.ctx.createGain();
 
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(800, now);
-        osc.frequency.exponentialRampToValueAtTime(1300, now + 0.15);
-        osc.frequency.setValueAtTime(1300, now + 0.2);
-        osc.frequency.exponentialRampToValueAtTime(1600, now + 0.4);
+        osc.frequency.setValueAtTime(850, now);
+        osc.frequency.exponentialRampToValueAtTime(1400, now + 0.12);
+        osc.frequency.setValueAtTime(1400, now + 0.18);
+        osc.frequency.exponentialRampToValueAtTime(1700, now + 0.35);
 
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+        gain.gain.setValueAtTime(0.25, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
 
         osc.connect(gain);
         gain.connect(this.ctx.destination);
 
         osc.start(now);
-        osc.stop(now + 0.45);
+        osc.stop(now + 0.4);
     }
 
     playKick() {
@@ -47,17 +47,17 @@ class AudioSynth {
         const gain = this.ctx.createGain();
 
         osc.type = 'sine';
-        osc.frequency.setValueAtTime(160, now);
-        osc.frequency.exponentialRampToValueAtTime(45, now + 0.1);
+        osc.frequency.setValueAtTime(155, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.08);
 
-        gain.gain.setValueAtTime(0.4, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        gain.gain.setValueAtTime(0.45, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
 
         osc.connect(gain);
         gain.connect(this.ctx.destination);
 
         osc.start(now);
-        osc.stop(now + 0.1);
+        osc.stop(now + 0.08);
     }
 
     playGoalSound() {
@@ -75,8 +75,8 @@ class AudioSynth {
 
         const filter = this.ctx.createBiquadFilter();
         filter.type = 'bandpass';
-        filter.frequency.value = 450;
-        filter.Q.value = 1.0;
+        filter.frequency.value = 460;
+        filter.Q.value = 1.2;
 
         const gain = this.ctx.createGain();
         gain.gain.setValueAtTime(0.35, this.ctx.currentTime);
@@ -93,12 +93,12 @@ class AudioSynth {
 
 const gameAudio = new AudioSynth();
 
-// --- MAIN GAME CONTROLLER ---
+// --- ULTRA FOOTBALL MATCH ENGINE ---
 class UltraFootballMatch {
     constructor() {
         this.container = document.getElementById('webgl-container');
         
-        // Match settings
+        // Settings
         this.selectedTeam = 'POR';
         this.selectedOpponent = 'BRA';
         this.weather = 'night';
@@ -106,44 +106,43 @@ class UltraFootballMatch {
         this.selectedDrill = 'dribble'; // 'dribble', 'pass', 'shoot', 'tackle'
         this.isTraining = false;
 
-        // Scores & Time
+        // States
         this.homeScore = 0;
         this.awayScore = 0;
-        this.matchTime = 0; // seconds
+        this.matchTime = 0;
         this.isPlaying = false;
-        
-        // Active control state
         this.activePlayer = null;
         this.hasBallControl = false;
         this.stamina = 100;
 
-        // Referee immunity & cooldown
-        this.kickoffImmunityTime = 5.0; // immunity at start
+        // Rules
+        this.kickoffImmunityTime = 5.0;
         this.foulCooldown = 0;
 
-        // Field size
+        // Dimensions
         this.fieldWidth = 70;
         this.fieldLength = 110;
         this.ballRadius = 0.35;
 
-        // Teams database
+        // Database
         this.teamsDb = {
-            UZB: { name: 'O\'ZBEKISTON', flag: '🇺🇿', color: 0x00c3ff, rating: 4 },
-            POR: { name: 'PORTUGAL', flag: '🇵🇹', color: 0xff0000, rating: 5 },
-            BRA: { name: 'BRAZIL', flag: '🇧🇷', color: 0xe6c300, rating: 5 },
-            ARG: { name: 'ARGENTINA', flag: '🇦🇷', color: 0x009ee3, rating: 5 },
-            ESP: { name: 'SPAIN', flag: '🇪🇸', color: 0xd91a1a, rating: 5 },
-            GER: { name: 'GERMANY', flag: '🇩🇪', color: 0x222222, rating: 4 },
-            FRA: { name: 'FRANCE', flag: '🇫🇷', color: 0x002395, rating: 5 },
-            ITA: { name: 'ITALY', flag: '🇮🇹', color: 0x008c45, rating: 4 }
+            UZB: { name: 'O\'ZBEKISTON', flag: '🇺🇿', color: 0x00c3ff },
+            POR: { name: 'PORTUGAL', flag: '🇵🇹', color: 0xff0000 },
+            BRA: { name: 'BRAZIL', flag: '🇧🇷', color: 0xe6c300 },
+            ARG: { name: 'ARGENTINA', flag: '🇦🇷', color: 0x009ee3 },
+            ESP: { name: 'SPAIN', flag: '🇪🇸', color: 0xd91a1a },
+            GER: { name: 'GERMANY', flag: '🇩🇪', color: 0x222222 },
+            FRA: { name: 'FRANCE', flag: '🇫🇷', color: 0x002395 },
+            ITA: { name: 'ITALY', flag: '🇮🇹', color: 0x008c45 }
         };
 
-        // Inputs
+        // Controls
         this.keys = { w: false, a: false, s: false, d: false };
         this.joystick = { active: false, startX: 0, startY: 0, moveX: 0, moveY: 0, maxLimit: 50 };
 
-        // Init
-        this.initSocket();
+        this.trainingProps = [];
+
+        // Build WebGL & scene
         this.initThree();
         this.buildStadium();
         this.buildGoals();
@@ -156,10 +155,10 @@ class UltraFootballMatch {
         this.renderMenuTeams();
         this.bindMenuButtons();
 
-        // Loader simulation
+        // Loading
         this.simulateLoader();
 
-        // Run Loop
+        // Animation loop
         this.animate = this.animate.bind(this);
         requestAnimationFrame(this.animate);
     }
@@ -177,28 +176,12 @@ class UltraFootballMatch {
                     document.getElementById('main-menu').classList.remove('hidden');
                 }, 300);
             }
-        }, 120);
-    }
-
-    initSocket() {
-        if (typeof io !== 'undefined') {
-            this.socket = io();
-            this.socket.on('opponent_move', (data) => {
-                const opponent = this.awayTeamPlayers[3]; // FW opponent representation
-                if (opponent) {
-                    opponent.position.set(data.x, data.y, data.z);
-                    opponent.rotation.y = data.rot;
-                }
-            });
-            this.socket.on('opponent_ball_sync', (data) => {
-                this.ball.position.set(data.x, data.y, data.z);
-            });
-        }
+        }, 100);
     }
 
     initThree() {
         this.scene = new THREE.Scene();
-        this.scene.fog = new THREE.FogExp2(0x05080e, 0.006);
+        this.scene.fog = new THREE.FogExp2(0x05080e, 0.0055);
 
         this.camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 400);
         this.cameraOffset = new THREE.Vector3(0, 13, 19);
@@ -211,10 +194,10 @@ class UltraFootballMatch {
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         this.container.appendChild(this.renderer.domElement);
 
-        this.ambientLight = new THREE.AmbientLight(0xddeeff, 0.6);
+        this.ambientLight = new THREE.AmbientLight(0xddeeff, 0.58);
         this.scene.add(this.ambientLight);
 
-        this.floodLight = new THREE.DirectionalLight(0xffffff, 1.4);
+        this.floodLight = new THREE.DirectionalLight(0xffffff, 1.45);
         this.floodLight.position.set(40, 70, 30);
         this.floodLight.castShadow = true;
         this.floodLight.shadow.mapSize.width = 1024;
@@ -272,7 +255,7 @@ class UltraFootballMatch {
         ctx.fillStyle = col1;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // 18 grass lawn stripes
+        // 18 grass stripes
         const stripes = 18;
         const stripeHeight = canvas.height / stripes;
         for (let i = 0; i < stripes; i++) {
@@ -280,7 +263,7 @@ class UltraFootballMatch {
             ctx.fillRect(0, i * stripeHeight, canvas.width, stripeHeight);
         }
 
-        // Draw professional white soccer lines
+        // Draw professional white lines
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.65)';
         ctx.lineWidth = 14;
 
@@ -289,7 +272,7 @@ class UltraFootballMatch {
         const w = canvas.width - padX * 2;
         const h = canvas.height - padY * 2;
 
-        // Touchline outer box
+        // Boundary lines
         ctx.strokeRect(padX, padY, w, h);
 
         // Center line
@@ -339,7 +322,7 @@ class UltraFootballMatch {
         const postGeo = new THREE.CylinderGeometry(0.12, 0.12, 5, 8);
         const barGeo = new THREE.CylinderGeometry(0.12, 0.12, 10, 8);
 
-        // Home goal (Z = 55)
+        // Home goal
         const postLeftH = new THREE.Mesh(postGeo, goalFrameMat);
         postLeftH.position.set(-5, 2.5, 55);
         const postRightH = new THREE.Mesh(postGeo, goalFrameMat);
@@ -349,7 +332,7 @@ class UltraFootballMatch {
         barH.position.set(0, 5, 55);
         this.scene.add(postLeftH, postRightH, barH);
 
-        // Away goal (Z = -55)
+        // Away goal
         const postLeftA = new THREE.Mesh(postGeo, goalFrameMat);
         postLeftA.position.set(-5, 2.5, -55);
         const postRightA = new THREE.Mesh(postGeo, goalFrameMat);
@@ -413,13 +396,11 @@ class UltraFootballMatch {
         this.awayTeamPlayers.push(gkAway, dfAway, mfAway, fwAway, subAway);
         this.awayTeamPlayers.forEach(p => this.scene.add(p));
 
-        this.activePlayer = fwHome; // User controls Ronaldo initially
+        this.activePlayer = fwHome;
     }
 
     createPlayerMesh(shirtColor, role, name) {
         const group = new THREE.Group();
-        
-        // Torso cylinder
         const torso = new THREE.Mesh(
             new THREE.CylinderGeometry(0.26, 0.22, 1.2, 12),
             new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.6 })
@@ -427,14 +408,12 @@ class UltraFootballMatch {
         torso.position.y = 0.8;
         torso.castShadow = true;
 
-        // Head
         const head = new THREE.Mesh(
             new THREE.SphereGeometry(0.18, 12, 12),
             new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.8 })
         );
         head.position.y = 1.5;
 
-        // Shorts
         const shorts = new THREE.Mesh(
             new THREE.CylinderGeometry(0.25, 0.25, 0.3, 12),
             new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.7 })
@@ -456,7 +435,7 @@ class UltraFootballMatch {
 
     buildSelectorArrow() {
         const geo = new THREE.ConeGeometry(0.2, 0.5, 4);
-        geo.rotateX(Math.PI); // point down
+        geo.rotateX(Math.PI);
         const mat = new THREE.MeshBasicMaterial({ color: 0x02f87b });
         this.selectorArrow = new THREE.Mesh(geo, mat);
         this.scene.add(this.selectorArrow);
@@ -519,11 +498,10 @@ class UltraFootballMatch {
             this.ambientLight.intensity = 0.6;
         }
 
-        // Rebuild turf color
         this.buildStadium();
     }
 
-    // --- GAME ENGINE LOOP ---
+    // --- MAIN ENGINE LOOP ---
     animate(timestamp) {
         requestAnimationFrame(this.animate);
         const dt = 0.016;
@@ -537,13 +515,11 @@ class UltraFootballMatch {
             this.checkTackleFouls(dt);
             this.updateWeatherParticles();
 
-            // Run training logic if training mode is active
             if (this.selectedMode === 'training') {
                 this.checkTrainingCollisions(dt);
             }
         }
 
-        // Update indicator pointer above player
         if (this.activePlayer && this.selectorArrow) {
             this.selectorArrow.position.copy(this.activePlayer.position);
             this.selectorArrow.position.y = 2.3 + Math.sin(Date.now() * 0.005) * 0.12;
@@ -574,29 +550,15 @@ class UltraFootballMatch {
             this.activePlayer.rotation.y = Math.atan2(dir.x, dir.z);
 
             this.stamina = Math.max(0, this.stamina - dt * 5.0);
-
-            // Sync online multiplayer if socket is active
-            if (this.socket) {
-                this.socket.emit('player_move', {
-                    x: this.activePlayer.position.x,
-                    y: this.activePlayer.position.y,
-                    z: this.activePlayer.position.z,
-                    rot: this.activePlayer.rotation.y
-                });
-            }
         } else {
             this.stamina = Math.min(100, this.stamina + dt * 8.0);
         }
 
-        // Limit inside pitch
         this.activePlayer.position.x = THREE.MathUtils.clamp(this.activePlayer.position.x, -this.fieldWidth / 2 + 1, this.fieldWidth / 2 - 1);
         this.activePlayer.position.z = THREE.MathUtils.clamp(this.activePlayer.position.z, -this.fieldLength / 2 + 1, this.fieldLength / 2 - 1);
     }
 
     updateAI(dt) {
-        const ball = this.ball;
-
-        // HOME TEAM AI
         this.homeTeamPlayers.forEach(p => {
             if (p === this.activePlayer) return;
             if (p.userData.role === 'GK') {
@@ -606,7 +568,6 @@ class UltraFootballMatch {
             }
         });
 
-        // AWAY TEAM AI (Opponents)
         this.awayTeamPlayers.forEach(p => {
             if (p.userData.role === 'GK') {
                 this.runGoalkeeperAI(p, false, dt);
@@ -623,14 +584,12 @@ class UltraFootballMatch {
         const distToBall = gk.position.distanceTo(this.ball.position);
 
         if (distToBall < 11.0) {
-            // GK rushes to ball
             const dir = this.ball.position.clone().sub(gk.position);
             dir.y = 0;
             if (dir.length() > 0.4) {
                 gk.position.addScaledVector(dir.normalize(), 6.0 * dt);
                 gk.rotation.y = Math.atan2(dir.x, dir.z);
             } else {
-                // Clear kick
                 const clearDir = new THREE.Vector3(Math.random() * 2 - 1, 0.4, isHome ? -1 : 1).normalize();
                 this.ball.position.copy(gk.position).add(clearDir.clone().multiplyScalar(0.8));
                 this.ballVelocity.copy(clearDir.multiplyScalar(17.5));
@@ -638,7 +597,6 @@ class UltraFootballMatch {
                 gameAudio.playKick();
             }
         } else {
-            // Stay inside box
             const defaultPos = new THREE.Vector3(0, 0, targetZ);
             const dir = defaultPos.clone().sub(gk.position);
             dir.y = 0;
@@ -647,7 +605,6 @@ class UltraFootballMatch {
             }
         }
 
-        // GK boundary limit
         gk.position.x = THREE.MathUtils.clamp(gk.position.x, -5.5, 5.5);
         gk.position.z = isHome ? THREE.MathUtils.clamp(gk.position.z, 44, 53) : THREE.MathUtils.clamp(gk.position.z, -53, -44);
     }
@@ -659,8 +616,6 @@ class UltraFootballMatch {
         }
 
         const distToBall = p.position.distanceTo(this.ball.position);
-
-        // Coach AI: closest outfield teammate presses ball
         const team = isOpponent ? this.awayTeamPlayers : this.homeTeamPlayers;
         let isPressing = true;
         team.forEach(mate => {
@@ -677,11 +632,9 @@ class UltraFootballMatch {
             p.position.addScaledVector(dir.normalize(), p.userData.speed * dt);
             p.rotation.y = Math.atan2(dir.x, dir.z);
         } else {
-            // Return to positional formation zone
-            let defaultZ = 0;
+            let defaultZ = isOpponent ? -15 : 15;
             if (p.userData.role === 'DF') defaultZ = isOpponent ? -25 : 25;
             else if (p.userData.role === 'MF') defaultZ = isOpponent ? -10 : 10;
-            else defaultZ = isOpponent ? -15 : 15;
 
             const homePos = new THREE.Vector3(p.userData.role === 'MF' ? -6 : 6, 0, defaultZ);
             const dir = homePos.clone().sub(p.position);
@@ -693,32 +646,26 @@ class UltraFootballMatch {
     }
 
     updateBallPhysics(dt) {
-        // Rainy ob-havo grass friction = 0.991 (rolls faster/longer), normal = 0.982
         const grassFriction = this.weather === 'rain' ? 0.991 : 0.982;
-
         const distToActive = this.ball.position.distanceTo(this.activePlayer.position);
         
         if (distToActive < 1.15 && this.ballVelocity.length() < 3.2) {
-            // Stick to user feet
             const offset = new THREE.Vector3(0, 0, 0.75).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.activePlayer.rotation.y);
             this.ball.position.copy(this.activePlayer.position).add(offset);
             this.ball.position.y = this.ballRadius;
             this.hasBallControl = true;
             document.getElementById('hud-active-player').innerText = this.activePlayer.userData.name;
         } else {
-            // Free movement physics
             this.ballVelocity.multiplyScalar(grassFriction);
             this.ball.position.addScaledVector(this.ballVelocity, dt);
 
-            // Gravity height bounce
             if (this.ball.position.y > this.ballRadius) {
                 this.ballVelocity.y -= 9.81 * dt;
             } else {
                 this.ball.position.y = this.ballRadius;
-                this.ballVelocity.y = -this.ballVelocity.y * 0.45; // damp bounce
+                this.ballVelocity.y = -this.ballVelocity.y * 0.45;
             }
 
-            // Boundary rebounds
             const halfW = this.fieldWidth / 2;
             const halfL = this.fieldLength / 2;
 
@@ -728,22 +675,16 @@ class UltraFootballMatch {
             }
 
             if (Math.abs(this.ball.position.z) > halfL) {
-                // Goal mouth check (width 10m)
                 if (Math.abs(this.ball.position.x) < 5.0) {
                     if (this.ball.position.z < -halfL) {
-                        this.triggerGoal(true); // Home scored
+                        this.triggerGoal(true);
                     } else if (this.ball.position.z > halfL) {
-                        this.triggerGoal(false); // Opponent scored
+                        this.triggerGoal(false);
                     }
                 } else {
                     this.ball.position.z = Math.sign(this.ball.position.z) * halfL;
                     this.ballVelocity.z *= -0.7;
                 }
-            }
-
-            // Sync ball online if socket active
-            if (this.socket && this.hasBallControl) {
-                this.socket.emit('ball_sync', { x: this.ball.position.x, y: this.ball.position.y, z: this.ball.position.z });
             }
         }
     }
@@ -758,15 +699,12 @@ class UltraFootballMatch {
             return;
         }
 
-        // Verify active slide contact
         if (this.activePlayer && this.activePlayer.userData.isSliding) {
             this.awayTeamPlayers.forEach(opponent => {
                 if (opponent.userData.role !== 'GK') {
                     const dist = this.activePlayer.position.distanceTo(opponent.position);
-                    
-                    // Proximity < 1.25, high slide velocity, 65% chance of referee whistle
                     if (dist < 1.25 && Math.random() < 0.65) {
-                        this.foulCooldown = 5.0; // cooldown
+                        this.foulCooldown = 5.0;
                         this.triggerFoul(this.activePlayer);
                     }
                 }
@@ -778,9 +716,9 @@ class UltraFootballMatch {
         if (this.weather === 'rain' && this.rainSystem) {
             const positions = this.rainSystem.geometry.attributes.position.array;
             for (let i = 1; i < positions.length; i += 3) {
-                positions[i] -= 0.5; // speed
+                positions[i] -= 0.5;
                 if (positions[i] < 0) {
-                    positions[i] = Math.random() * 30 + 3; // wrap
+                    positions[i] = Math.random() * 30 + 3;
                 }
             }
             this.rainSystem.geometry.attributes.position.needsUpdate = true;
@@ -798,10 +736,8 @@ class UltraFootballMatch {
         const mins = Math.floor(this.matchTime / 60).toString().padStart(2, '0');
         const secs = Math.floor(this.matchTime % 60).toString().padStart(2, '0');
         document.getElementById('match-timer').innerText = `${mins}:${secs}`;
-
         document.getElementById('stamina-fill').style.width = this.stamina + '%';
 
-        // Check Match Over (90 seconds game time)
         if (this.matchTime >= 90) {
             this.isPlaying = false;
             document.getElementById('final-goals-val').innerText = this.homeScore;
@@ -811,7 +747,6 @@ class UltraFootballMatch {
         }
     }
 
-    // --- GAMEPLAY ACTIONS ---
     switchActivePlayer() {
         if (!this.homeTeamPlayers) return;
         const outfields = this.homeTeamPlayers.filter(p => p.userData.role !== 'GK');
@@ -849,7 +784,6 @@ class UltraFootballMatch {
     }
 
     executeSlideTackle() {
-        // Slide forward
         const slideDir = new THREE.Vector3(0, 0, 0.8).applyAxisAngle(new THREE.Vector3(0, 1, 0), this.activePlayer.rotation.y);
         this.activePlayer.position.addScaledVector(slideDir, 4.5);
         this.activePlayer.userData.isSliding = true;
@@ -860,7 +794,6 @@ class UltraFootballMatch {
             }
         }, 500);
 
-        // Intercept/steal close opponent ball
         this.awayTeamPlayers.forEach(bot => {
             const dist = this.activePlayer.position.distanceTo(bot.position);
             if (dist < 1.8) {
@@ -910,7 +843,6 @@ class UltraFootballMatch {
             overlay.classList.remove('hidden');
 
             if (!isYellow) {
-                // Sent off the pitch
                 setTimeout(() => {
                     player.position.set(0, -60, 0);
                 }, 1000);
@@ -928,10 +860,8 @@ class UltraFootballMatch {
         this.ball.position.set(0, this.ballRadius, 0);
         this.ballVelocity.set(0, 0, 0);
         this.hasBallControl = false;
+        this.kickoffImmunityTime = 5.0;
 
-        this.kickoffImmunityTime = 5.0; // reset immunity!
-
-        // Position home
         if (this.homeTeamPlayers && this.homeTeamPlayers.length >= 5) {
             this.homeTeamPlayers[0].position.set(0, 0, 48); // GK
             this.homeTeamPlayers[1].position.set(0, 0, 25); // DF
@@ -941,7 +871,6 @@ class UltraFootballMatch {
             this.activePlayer = this.homeTeamPlayers[3];
         }
 
-        // Position away
         if (this.awayTeamPlayers && this.awayTeamPlayers.length >= 5) {
             this.awayTeamPlayers[0].position.set(0, 0, -48); // GK
             this.awayTeamPlayers[1].position.set(0, 0, -25); // DF
@@ -951,7 +880,7 @@ class UltraFootballMatch {
         }
     }
 
-    // --- INTERACTIVE EVENTS & INPUTS ---
+    // --- INPUTS ---
     setupJoystick() {
         const boundary = document.getElementById('joystick-boundary');
         const thumb = document.getElementById('joystick-thumb');
@@ -996,7 +925,7 @@ class UltraFootballMatch {
             if (k === 'q') this.switchActivePlayer();
             if (k === 'k') this.executePass();
             if (k === 'i') this.executeThroughPass();
-            if (k === ' ') this.executeShoot(); // Spacebar Shoot
+            if (k === ' ') this.executeShoot();
             if (k === 'o') this.executeSlideTackle();
         });
 
@@ -1008,7 +937,6 @@ class UltraFootballMatch {
             if (k === 'd' || e.key === 'ArrowRight') this.keys.d = false;
         });
 
-        // Mobile buttons
         document.getElementById('btn-switch').addEventListener('pointerdown', () => this.switchActivePlayer());
         document.getElementById('btn-shoot').addEventListener('pointerdown', () => this.executeShoot());
         document.getElementById('btn-through').addEventListener('pointerdown', () => this.executeThroughPass());
@@ -1038,10 +966,8 @@ class UltraFootballMatch {
                 document.querySelectorAll('#teams-selector-grid .team-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 this.selectedTeam = id;
-                // pick different random opponent
                 const opps = Object.keys(this.teamsDb).filter(x => x !== id);
                 this.selectedOpponent = opps[Math.floor(Math.random() * opps.length)];
-                console.log(`Selected team: ${this.selectedTeam}, Opponent: ${this.selectedOpponent}`);
             });
             grid.appendChild(btn);
         });
@@ -1057,7 +983,6 @@ class UltraFootballMatch {
             });
         });
 
-        // Mode selectors (Quick Match vs Training Ground)
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -1074,7 +999,6 @@ class UltraFootballMatch {
             });
         });
 
-        // Drill selectors
         document.querySelectorAll('.drill-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.drill-btn').forEach(b => b.classList.remove('active'));
@@ -1091,7 +1015,6 @@ class UltraFootballMatch {
             const hTeam = this.teamsDb[this.selectedTeam];
             const aTeam = this.teamsDb[this.selectedOpponent];
 
-            // Render HUD info
             document.getElementById('hud-home-name').innerText = this.selectedTeam;
             document.getElementById('hud-away-name').innerText = this.selectedOpponent;
             document.getElementById('hud-home-flag').innerText = hTeam.flag;
@@ -1106,7 +1029,6 @@ class UltraFootballMatch {
             this.stamina = 100;
             this.isTraining = (this.selectedMode === 'training');
             
-            // Build players, load training props & trigger kickoff whistle
             this.buildPlayers();
             this.resetBall();
             this.buildTrainingProps();
@@ -1130,7 +1052,6 @@ class UltraFootballMatch {
         });
 
         document.getElementById('restart-game-btn').addEventListener('click', () => {
-            // Remove training props on exit
             if (this.trainingProps) {
                 this.trainingProps.forEach(obj => this.scene.remove(obj));
                 this.trainingProps = [];
@@ -1160,7 +1081,7 @@ class UltraFootballMatch {
     saveScore() {
         const input = document.getElementById('player-name-input');
         const name = input ? input.value.trim() : "Kapitan";
-        const score = (this.homeScore * 150) + 100; // calculate simple performance score
+        const score = (this.homeScore * 150) + 100;
         const club = this.teamsDb[this.selectedTeam].name;
 
         fetch('/api/leaderboard', {
@@ -1170,12 +1091,12 @@ class UltraFootballMatch {
         })
         .then(res => res.json())
         .then(() => {
-            alert("Sizning natijangiz muvaffaqiyatli saqlandi!");
+            alert("Natijangiz saqlandi!");
             this.loadLeaderboard();
             document.getElementById('game-over-modal').classList.add('hidden');
             document.getElementById('main-menu').classList.remove('hidden');
         })
-        .catch(err => alert("Natija saqlashda xatolik yuz berdi."));
+        .catch(err => alert("Xatolik yuz berdi."));
     }
 
     buildTrainingProps() {
@@ -1185,8 +1106,6 @@ class UltraFootballMatch {
         this.trainingProps = [];
 
         if (this.selectedMode !== 'training') return;
-
-        console.log(`[Training] Spawning props for drill: ${this.selectedDrill}`);
 
         if (this.selectedDrill === 'dribble') {
             const conePoints = [
@@ -1316,7 +1235,6 @@ class UltraFootballMatch {
                     const pushDir = player.position.clone().sub(cone.position).normalize();
                     player.position.addScaledVector(pushDir, 0.4);
                     this.stamina = Math.max(0, this.stamina - 15);
-                    console.log("[Drill] Cone touched! Penalty!");
                 }
             });
         }
@@ -1402,7 +1320,7 @@ class UltraFootballMatch {
     }
 }
 
-// Instantiate on startup
+// Instantiate
 window.addEventListener('DOMContentLoaded', () => {
     window.matchInstance = new UltraFootballMatch();
 });

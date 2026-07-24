@@ -1,17 +1,17 @@
 /* ===================================================
-   FC MOBILE 3D - MODERN DESIGN STYLE
-   Curatedharmonious palettes & slek animations
+   FC MOBILE 3D - ULTIMATE DESIGN SYSTEM
+   Curated color palettes, sleek UI, and animations.
    =================================================== */
 
 :root {
-    --primary: #02f87b; /* Neon pitch green */
-    --accent: #ff8c00;  /* Bright orange */
+    --primary: #02f87b; /* pitch neon green */
+    --accent: #ff8c00;  /* orange glow */
     --gold: #e6c300;
-    --dark-bg: #05080e;
-    --card-bg: rgba(10, 18, 30, 0.75);
-    --border-color: rgba(2, 248, 123, 0.15);
+    --dark-bg: #03060c;
+    --card-bg: rgba(8, 14, 25, 0.85);
+    --border-color: rgba(2, 248, 123, 0.18);
     --text-main: #ffffff;
-    --text-sub: #8a9cae;
+    --text-sub: #8fa0b5;
     --font-main: 'Outfit', sans-serif;
 }
 
@@ -41,14 +41,14 @@ body, html {
     z-index: 1;
 }
 
-/* --- Loader / Splash screen --- */
+/* --- Loader / Splash --- */
 .splash-container {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #050b14 0%, #0c182c 100%);
+    background: linear-gradient(135deg, #02060f 0%, #081122 100%);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -68,7 +68,7 @@ body, html {
 }
 
 .splash-logo {
-    font-size: 2.8rem;
+    font-size: 3rem;
     font-weight: 900;
     letter-spacing: 2px;
     margin-bottom: 30px;
@@ -76,25 +76,24 @@ body, html {
 
 .splash-logo span {
     color: var(--primary);
-    text-shadow: 0 0 15px rgba(2, 248, 123, 0.5);
+    text-shadow: 0 0 20px rgba(2, 248, 123, 0.6);
 }
 
 .progress-bar-container {
     width: 280px;
     height: 6px;
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 3px;
     overflow: hidden;
     margin: 0 auto 15px auto;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 .progress-bar {
     width: 0%;
     height: 100%;
     background: linear-gradient(90deg, var(--primary), var(--accent));
-    box-shadow: 0 0 10px var(--primary);
-    transition: width 0.1s linear;
+    box-shadow: 0 0 12px var(--primary);
 }
 
 .splash-sub {
@@ -110,7 +109,7 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(5, 8, 14, 0.85);
+    background: rgba(3, 6, 12, 0.88);
     backdrop-filter: blur(15px);
     display: flex;
     flex-direction: column;
@@ -147,10 +146,10 @@ body, html {
 }
 
 .user-profile-widget {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.04);
     padding: 8px 20px;
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     font-size: 0.95rem;
     font-weight: 600;
 }
@@ -158,7 +157,7 @@ body, html {
 .menu-body {
     flex: 1;
     display: grid;
-    grid-template-columns: 1.62fr 1fr;
+    grid-template-columns: 1.6fr 1fr;
     gap: 20px;
     padding: 15px 30px;
     max-width: 1440px;
@@ -168,10 +167,10 @@ body, html {
 
 .hero-card {
     background: var(--card-bg);
-    border-radius: 20px;
+    border-radius: 24px;
     padding: 30px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.8);
     display: flex;
     flex-direction: column;
     gap: 25px;
@@ -211,8 +210,8 @@ body, html {
 }
 
 .team-btn {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 12px;
     color: #fff;
@@ -228,19 +227,19 @@ body, html {
 
 .team-btn:hover, .team-btn.active {
     border-color: var(--primary);
-    background: rgba(2, 248, 123, 0.1);
+    background: rgba(2, 248, 123, 0.08);
     box-shadow: 0 0 15px rgba(2, 248, 123, 0.2);
 }
 
-.weather-grid {
+.weather-grid, .mode-grid, .drills-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
 }
 
-.weather-btn {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.weather-btn, .mode-btn, .drill-btn {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 12px;
     padding: 12px;
     color: #fff;
@@ -248,11 +247,22 @@ body, html {
     font-family: var(--font-main);
     font-weight: 700;
     transition: all 0.2s ease;
+    text-align: center;
 }
 
-.weather-btn:hover, .weather-btn.active {
+.weather-btn:hover, .weather-btn.active,
+.mode-btn:hover, .mode-btn.active,
+.drill-btn:hover, .drill-btn.active {
     border-color: var(--primary);
-    background: rgba(2, 248, 123, 0.1);
+    background: rgba(2, 248, 123, 0.08);
+}
+
+/* Custom grids override for training screen */
+.mode-grid {
+    grid-template-columns: 1fr 1fr;
+}
+.drills-grid {
+    grid-template-columns: repeat(2, 1fr);
 }
 
 .glow-btn {
@@ -267,12 +277,12 @@ body, html {
     font-size: 1.2rem;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 10px 25px rgba(2, 248, 123, 0.3);
+    box-shadow: 0 10px 25px rgba(2, 248, 123, 0.35);
 }
 
 .glow-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(2, 248, 123, 0.5);
+    box-shadow: 0 15px 30px rgba(2, 248, 123, 0.55);
 }
 
 .side-panel {
@@ -282,8 +292,8 @@ body, html {
 }
 
 .panel-card {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 20px;
 }
@@ -305,9 +315,9 @@ body, html {
     display: flex;
     justify-content: space-between;
     padding: 10px 15px;
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.02);
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.04);
     font-size: 0.95rem;
 }
 
@@ -350,8 +360,8 @@ body, html {
     top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(5, 8, 14, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(3, 6, 12, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 35px;
     padding: 8px 30px;
     display: flex;
@@ -434,8 +444,8 @@ body, html {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(5, 8, 14, 0.9);
-    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(3, 6, 12, 0.92);
+    border: 1px solid rgba(255,255,255,0.18);
     border-radius: 20px;
     padding: 30px;
     text-align: center;
@@ -450,13 +460,8 @@ body, html {
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-.yellow-card {
-    background: #ffcc00;
-}
-
-.red-card {
-    background: #ff3333;
-}
+.yellow-card { background: #ffcc00; }
+.red-card { background: #ff3333; }
 
 /* --- Joysticks & Controls --- */
 .joystick-wrapper {
@@ -471,8 +476,8 @@ body, html {
 .joystick-base {
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.08);
-    border: 2px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     position: relative;
     touch-action: none;
@@ -481,7 +486,7 @@ body, html {
 .joystick-knob {
     width: 50px;
     height: 50px;
-    background: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.8);
     border-radius: 50%;
     position: absolute;
     top: 50%;
@@ -531,7 +536,7 @@ body, html {
     left: 50%;
     transform: translateX(-50%);
     width: 250px;
-    background: rgba(5, 8, 14, 0.8);
+    background: rgba(3, 6, 12, 0.8);
     border: 1px solid rgba(255,255,255,0.1);
     border-radius: 15px;
     padding: 10px 15px;
@@ -564,7 +569,7 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(5,8,14,0.9);
+    background: rgba(3,6,12,0.9);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -604,7 +609,7 @@ body, html {
     background: var(--card-bg);
     border-radius: 26px;
     padding: 45px;
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid var(--border-color);
     width: 95%;
     max-width: 480px;
     margin: auto;
@@ -628,13 +633,13 @@ body, html {
 .input-group label { display: block; font-size: 0.85rem; color: var(--text-sub); margin-bottom: 8px; }
 .input-group input {
     width: 100%; padding: 15px; border-radius: 12px;
-    background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
     color: #fff; font-family: var(--font-main); font-size: 1rem; outline: none;
 }
 
 .secondary-btn {
-    width: 100%; padding: 16px; background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 14px;
+    width: 100%; padding: 16px; background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 14px;
     color: #fff; font-family: var(--font-main); font-weight: 700; cursor: pointer;
     margin-top: 10px;
 }
@@ -658,57 +663,4 @@ body, html {
 @keyframes zoomIn {
     from { transform: scale(0.5); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
-}
-
-/* --- Mode & Drills Selectors --- */
-.mode-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-.mode-btn {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 14px;
-    color: #fff;
-    cursor: pointer;
-    font-family: var(--font-main);
-    font-weight: 700;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-}
-.mode-btn:hover, .mode-btn.active {
-    border-color: var(--primary);
-    background: rgba(2, 248, 123, 0.1);
-    box-shadow: 0 0 15px rgba(2, 248, 123, 0.25);
-}
-
-.drills-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-}
-.drill-btn {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 12px;
-    color: #fff;
-    cursor: pointer;
-    font-family: var(--font-main);
-    font-weight: 700;
-    transition: all 0.2s ease;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-.drill-btn:hover, .drill-btn.active {
-    border-color: var(--primary);
-    background: rgba(2, 248, 123, 0.1);
-    box-shadow: 0 0 15px rgba(2, 248, 123, 0.25);
 }
