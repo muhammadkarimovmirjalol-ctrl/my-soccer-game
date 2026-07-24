@@ -511,144 +511,175 @@ class UltraFootballMatch {
     createPlayerMesh(shirtColor, role, name) {
         const group = new THREE.Group();
 
-        // 1. Torso Jersey
+        // 1. Torso Jersey (Slightly enlarged height and thickness)
         const torsoMat = new THREE.MeshStandardMaterial({ color: shirtColor, roughness: 0.58 });
         const torso = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.24, 0.18, 0.9, 10),
+            new THREE.CylinderGeometry(0.28, 0.22, 1.05, 10),
             torsoMat
         );
-        torso.position.y = 0.95;
+        torso.position.y = 1.05;
         torso.castShadow = true;
         group.add(torso);
 
-        // 2. Shorts
+        // 2. Shorts (Enlarged)
         const shortsMat = new THREE.MeshStandardMaterial({ color: 0x1b1e22, roughness: 0.65 });
         const shorts = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.23, 0.23, 0.25, 10),
+            new THREE.CylinderGeometry(0.27, 0.27, 0.28, 10),
             shortsMat
         );
-        shorts.position.y = 0.55;
+        shorts.position.y = 0.62;
         group.add(shorts);
 
-        // 3. Head & skin
+        // 3. Head & skin (Enlarged)
         const skinMat = new THREE.MeshStandardMaterial({ color: 0xffe0bd, roughness: 0.72 });
         const head = new THREE.Mesh(
-            new THREE.SphereGeometry(0.18, 10, 10),
+            new THREE.SphereGeometry(0.21, 10, 10),
             skinMat
         );
-        head.position.y = 1.55;
+        head.position.y = 1.72;
         group.add(head);
 
-        // 4. Hair (low poly hair block)
+        // 4. Hair (Enlarged)
         const hairMat = new THREE.MeshStandardMaterial({ color: 0x2d1d17, roughness: 0.8 });
         const hair = new THREE.Mesh(
-            new THREE.SphereGeometry(0.19, 8, 8),
+            new THREE.SphereGeometry(0.22, 8, 8),
             hairMat
         );
-        hair.position.set(0, 1.63, -0.04);
+        hair.position.set(0, 1.82, -0.05);
         group.add(hair);
 
-        // 5. Left Leg Group (pivot at hip joint Y = 0.5)
+        // 5. Left Leg Group (pivot at hip joint Y = 0.55)
+        const socksMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8 });
+        const bootsMat = new THREE.MeshStandardMaterial({ color: 0x151515, roughness: 0.45 });
+
         const leftLegGroup = new THREE.Group();
-        leftLegGroup.position.set(-0.12, 0.5, 0);
+        leftLegGroup.position.set(-0.14, 0.55, 0);
 
         const leftLeg = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.07, 0.07, 0.4, 8),
+            new THREE.CylinderGeometry(0.08, 0.08, 0.48, 8),
             socksMat
         );
-        leftLeg.position.y = -0.2;
+        leftLeg.position.y = -0.24;
         leftLegGroup.add(leftLeg);
 
         const leftBoot = new THREE.Mesh(
-            new THREE.BoxGeometry(0.1, 0.09, 0.22),
+            new THREE.BoxGeometry(0.12, 0.1, 0.24),
             bootsMat
         );
-        leftBoot.position.set(0, -0.42, 0.05);
+        leftBoot.position.set(0, -0.48, 0.06);
         leftLegGroup.add(leftBoot);
         group.add(leftLegGroup);
 
-        // 6. Right Leg Group (pivot at hip joint Y = 0.5)
+        // 6. Right Leg Group
         const rightLegGroup = new THREE.Group();
-        rightLegGroup.position.set(0.12, 0.5, 0);
+        rightLegGroup.position.set(0.14, 0.55, 0);
 
         const rightLeg = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.07, 0.07, 0.4, 8),
+            new THREE.CylinderGeometry(0.08, 0.08, 0.48, 8),
             socksMat
         );
-        rightLeg.position.y = -0.2;
+        rightLeg.position.y = -0.24;
         rightLegGroup.add(rightLeg);
 
         const rightBoot = new THREE.Mesh(
-            new THREE.BoxGeometry(0.1, 0.09, 0.22),
+            new THREE.BoxGeometry(0.12, 0.1, 0.24),
             bootsMat
         );
-        rightBoot.position.set(0, -0.42, 0.05);
+        rightBoot.position.set(0, -0.48, 0.06);
         rightLegGroup.add(rightBoot);
         group.add(rightLegGroup);
 
-        // 7. Arms
+        // 7. Arms (Enlarged)
         const leftArm = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.07, 0.07, 0.6, 8),
+            new THREE.CylinderGeometry(0.08, 0.08, 0.65, 8),
             torsoMat
         );
-        leftArm.position.set(-0.34, 1.0, 0);
+        leftArm.position.set(-0.38, 1.1, 0);
         leftArm.rotation.z = 0.2;
         group.add(leftArm);
 
         const rightArm = leftArm.clone();
-        rightArm.position.set(0.34, 1.0, 0);
+        rightArm.position.set(0.38, 1.1, 0);
         rightArm.rotation.z = -0.2;
         group.add(rightArm);
 
         // 8. Face Eyes (Black spheres looking forward Z > 0)
         const eyeMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-        const eyeGeo = new THREE.SphereGeometry(0.03, 4, 4);
+        const eyeGeo = new THREE.SphereGeometry(0.035, 4, 4);
         
         const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
-        leftEye.position.set(-0.06, 1.58, 0.15);
+        leftEye.position.set(-0.07, 1.76, 0.17);
         group.add(leftEye);
 
         const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
-        rightEye.position.set(0.06, 1.58, 0.15);
+        rightEye.position.set(0.07, 1.76, 0.17);
         group.add(rightEye);
 
         // 9. Hands (Skin colored spheres at the end of arms)
-        const handGeo = new THREE.SphereGeometry(0.05, 6, 6);
+        const handGeo = new THREE.SphereGeometry(0.06, 6, 6);
         
         const leftHand = new THREE.Mesh(handGeo, skinMat);
-        leftHand.position.set(-0.38, 0.72, 0.05);
+        leftHand.position.set(-0.43, 0.78, 0.06);
         group.add(leftHand);
 
         const rightHand = new THREE.Mesh(handGeo, skinMat);
-        rightHand.position.set(0.38, 0.72, 0.05);
+        rightHand.position.set(0.43, 0.78, 0.06);
         group.add(rightHand);
 
-        // 10. Back Jersey Squad Number (Z < 0)
+        // 10. Squad Number / Name strings
         let numStr = "10";
         if (role === 'GK') numStr = "1";
         else if (role === 'DF') numStr = "4";
         else if (role === 'FW') numStr = "7";
         else if (role === 'SUB') numStr = "12";
 
-        const numCanvas = document.createElement('canvas');
-        numCanvas.width = 64;
-        numCanvas.height = 64;
-        const numCtx = numCanvas.getContext('2d');
-        numCtx.clearRect(0, 0, 64, 64);
-        numCtx.fillStyle = '#ffffff';
-        numCtx.font = 'bold 44px sans-serif';
-        numCtx.textAlign = 'center';
-        numCtx.textBaseline = 'middle';
-        numCtx.fillText(numStr, 32, 32);
+        // FRONT Jersey Chest Number (small, left chest area)
+        const frontCanvas = document.createElement('canvas');
+        frontCanvas.width = 64;
+        frontCanvas.height = 64;
+        const frontCtx = frontCanvas.getContext('2d');
+        frontCtx.clearRect(0, 0, 64, 64);
+        frontCtx.fillStyle = '#ffffff';
+        frontCtx.font = 'bold 44px sans-serif';
+        frontCtx.textAlign = 'center';
+        frontCtx.textBaseline = 'middle';
+        frontCtx.fillText(numStr, 32, 32);
 
-        const numTex = new THREE.CanvasTexture(numCanvas);
-        const numPlate = new THREE.Mesh(
-            new THREE.PlaneGeometry(0.24, 0.24),
-            new THREE.MeshBasicMaterial({ map: numTex, transparent: true, side: THREE.DoubleSide })
+        const frontTex = new THREE.CanvasTexture(frontCanvas);
+        const frontPlate = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.12, 0.12),
+            new THREE.MeshBasicMaterial({ map: frontTex, transparent: true, side: THREE.DoubleSide })
         );
-        numPlate.position.set(0, 1.0, -0.25);
-        numPlate.rotation.y = Math.PI;
-        group.add(numPlate);
+        frontPlate.position.set(-0.11, 1.22, 0.29); // left chest
+        group.add(frontPlate);
+
+        // BACK Jersey: Player Name + large Squad Number (Z < 0)
+        const backCanvas = document.createElement('canvas');
+        backCanvas.width = 128;
+        backCanvas.height = 128;
+        const backCtx = backCanvas.getContext('2d');
+        backCtx.clearRect(0, 0, 128, 128);
+        
+        // Render name (shortened)
+        const displayName = name.split(" ")[0].toUpperCase();
+        backCtx.fillStyle = '#ffffff';
+        backCtx.font = 'bold 20px sans-serif';
+        backCtx.textAlign = 'center';
+        backCtx.textBaseline = 'middle';
+        backCtx.fillText(displayName, 64, 28);
+
+        // Render squad number
+        backCtx.font = 'bold 68px sans-serif';
+        backCtx.fillText(numStr, 64, 78);
+
+        const backTex = new THREE.CanvasTexture(backCanvas);
+        const backPlate = new THREE.Mesh(
+            new THREE.PlaneGeometry(0.35, 0.35),
+            new THREE.MeshBasicMaterial({ map: backTex, transparent: true, side: THREE.DoubleSide })
+        );
+        backPlate.position.set(0, 1.15, -0.29);
+        backPlate.rotation.y = Math.PI; // facing backward
+        group.add(backPlate);
 
         group.userData = {
             role,
