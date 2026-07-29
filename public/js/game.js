@@ -157,28 +157,87 @@ class UltraFootballMatch {
         this.renderMenuTeams();
         this.bindMenuButtons();
 
-        // Loading
-        this.simulateLoader();
+        // 3D Intro settings
+        this.introRunning = true;
+        this.introTime = 0;
+        this.introKicked = false;
+        this.introGoalScored = false;
+        this.setupIntroPositions();
 
         // Animation loop
         this.animate = this.animate.bind(this);
         requestAnimationFrame(this.animate);
     }
 
-    simulateLoader() {
-        let progress = 0;
+    setupIntroPositions() {
+        if (!this.homeTeamPlayers || this.homeTeamPlayers.length < 5) return;
+        
+        const ronaldo = this.homeTeamPlayers[3]; // C. Ronaldo
+        const gk = this.homeTeamPlayers[0]; // GK
+
+        ronaldo.position.set(0, 0, 31);
+        this.ball.position.set(0, this.ballRadius, 36.5);
+        
+        const gkOpponent = this.awayTeamPlayers[0];
+        gkOpponent.position.set(0, 0, 54.5);
+        gkOpponent.rotation.set(0, 0, 0);
+
+        this.homeTeamPlayers.forEach(p => {
+            if (p !== ronaldo && p !== gk) p.position.set(0, -50, 0);
+        });
+        this.awayTeamPlayers.forEach(p => {
+            if (p !== gkOpponent) p.position.set(0, -50, 0);
+        });
+
+        this.camera.position.set(-6, 3.8, 25);
+        this.camera.lookAt(0, 1.5, 42);
+    }
+
+    updateIntro(dt) {
+        this.introTime += dt;
+
         const pBar = document.getElementById('progress-bar');
-        const interval = setInterval(() => {
-            progress += 20;
-            if (pBar) pBar.style.width = progress + '%';
-            if (progress >= 100) {
-                clearInterval(interval);
-                setTimeout(() => {
-                    document.getElementById('loading-screen').classList.add('hidden');
-                    document.getElementById('main-menu').classList.remove('hidden');
-                }, 300);
-            }
-        }, 100);
+        const progress = Math.min(100, Math.floor((this.introTime / 3.8) * 100));
+        if (pBar) pBar.style.width = progress + '%';
+
+        const ronaldo = this.homeTeamPlayers[3];
+        const gkOpponent = this.awayTeamPlayers[0];
+
+        this.camera.position.set(-6, 3.8, 25);
+        this.camera.lookAt(0, 1.5, 42);
+
+        if (this.introTime < 1.1) {
+            ronaldo.position.z += 5.2 * dt;
+            const cycle = Date.now() * 0.015;
+            ronaldo.userData.leftLegGroup.rotation.x = Math.sin(cycle) * 0.75;
+            ronaldo.userData.rightLegGroup.rotation.x = -Math.sin(cycle) * 0.75;
+        }
+        else if (!this.introKicked) {
+            this.introKicked = true;
+            ronaldo.userData.leftLegGroup.rotation.x = 0;
+            ronaldo.userData.rightLegGroup.rotation.x = 0;
+            this.ballVelocity.set(1.15, 2.55, 17.5);
+            gameAudio.playKick();
+        }
+
+        if (this.introKicked && this.introTime < 2.5) {
+            gkOpponent.position.x -= 2.0 * dt;
+            gkOpponent.position.y += 0.8 * dt;
+            gkOpponent.rotation.z += 0.35 * dt;
+        }
+
+        if (this.ball.position.z > 54.5 && !this.introGoalScored) {
+            this.introGoalScored = true;
+            gameAudio.playGoalSound();
+            if (window.confetti) window.confetti({ particleCount: 70, spread: 50 });
+        }
+
+        if (this.introTime >= 3.8) {
+            this.introRunning = false;
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('main-menu').classList.remove('hidden');
+            this.resetBall();
+        }
     }
 
     initThree() {
@@ -767,7 +826,12 @@ class UltraFootballMatch {
         requestAnimationFrame(this.animate);
         const dt = 0.016;
 
-        if (this.isPlaying) {
+        if (this.introRunning) {
+            this.updateIntro(dt);
+            this.updateBallPhysics(dt);
+            this.updateWeatherParticles();
+        }
+        else if (this.isPlaying) {
             this.updatePlayerMovement(dt);
             this.updateAI(dt);
             this.updateBallPhysics(dt);
@@ -1261,6 +1325,14 @@ class UltraFootballMatch {
             this.awayTeamPlayers[3].position.set(0, 0, -2);  // FW
             this.awayTeamPlayers[4].position.set(-8, 0, -15); // SUB
         }
+
+        // Reset rotations of all player meshes and joints
+        const allPlayers = [...(this.homeTeamPlayers || []), ...(this.awayTeamPlayers || [])];
+        allPlayers.forEach(p => {
+            p.rotation.set(0, 0, 0);
+            if (p.userData.leftLegGroup) p.userData.leftLegGroup.rotation.set(0, 0, 0);
+            if (p.userData.rightLegGroup) p.userData.rightLegGroup.rotation.set(0, 0, 0);
+        });
     }
 
     // --- INPUTS ---
