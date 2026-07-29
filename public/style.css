@@ -156,13 +156,17 @@ body, html {
 
 .menu-body {
     flex: 1;
-    display: grid;
-    grid-template-columns: 1.6fr 1fr;
-    gap: 20px;
     padding: 15px 30px;
     max-width: 1440px;
     margin: 0 auto;
     width: 100%;
+}
+
+#play-tab.active-tab {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+    align-items: start;
 }
 
 .hero-card {

@@ -114,16 +114,6 @@ class FootballDatabase {
     }
 
     loadState() {
-        const saved = localStorage.getItem(this.storageKey);
-        if (saved) {
-            try {
-                return JSON.parse(saved);
-            } catch (e) {
-                console.error("Database parsing failed, resetting:", e);
-            }
-        }
-
-        // Default initial setup
         const defaultState = {
             profile: {
                 nickname: 'Kapitan',
@@ -138,12 +128,12 @@ class FootballDatabase {
                 matchesPlayed: 0,
                 wins: 0,
                 losses: 0,
-                activeFormation: '4-3-3', // 4-4-2, 4-3-3, 3-5-2, 5-3-2
-                tactic: 'balanced', // balanced, attacking, defensive
+                activeFormation: '4-3-3', 
+                tactic: 'balanced', 
                 captainId: 'fw_3',
                 lang: 'uz'
             },
-            ownedPlayers: ['gk_1', 'df_1', 'mf_5', 'fw_3', 'mf_1'], // Initial squad
+            ownedPlayers: ['gk_1', 'df_1', 'mf_5', 'fw_3', 'mf_1'], 
             activeSquad: {
                 GK: 'gk_1',
                 DF: 'df_1',
@@ -182,6 +172,32 @@ class FootballDatabase {
                 { sender: 'Messi_Magic', club: 'Buenos Aires FC', flag: '🇦🇷', text: 'Penaltilar seriyasi juda daxshat bo\'ldi!' }
             ]
         };
+
+        const saved = localStorage.getItem(this.storageKey);
+        if (saved) {
+            try {
+                const parsed = JSON.parse(saved);
+                
+                // Deep migration check
+                if (!parsed.profile) parsed.profile = {};
+                parsed.profile = { ...defaultState.profile, ...parsed.profile };
+                if (parsed.profile.level === undefined) parsed.profile.level = 1;
+                if (parsed.profile.xp === undefined) parsed.profile.xp = 0;
+                if (parsed.profile.coins === undefined) parsed.profile.coins = 1200;
+                if (parsed.profile.countryCode === undefined) parsed.profile.countryCode = 'UZB';
+                
+                if (!parsed.chatLogs) parsed.chatLogs = defaultState.chatLogs;
+                if (!parsed.quests) parsed.quests = defaultState.quests;
+                if (!parsed.seasonPass) parsed.seasonPass = defaultState.seasonPass;
+                if (!parsed.leagueTable) parsed.leagueTable = defaultState.leagueTable;
+                if (!parsed.achievements) parsed.achievements = defaultState.achievements;
+                
+                this.save(parsed);
+                return parsed;
+            } catch (e) {
+                console.error("Database parsing failed, resetting:", e);
+            }
+        }
 
         this.save(defaultState);
         return defaultState;
