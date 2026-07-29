@@ -1482,6 +1482,16 @@ class UltraFootballMatch {
         });
     }
 
+    getFlagImg(code) {
+        const mapping = {
+            UZB: 'uz', POR: 'pt', BRA: 'br', ARG: 'ar', ESP: 'es', GER: 'de', FRA: 'fr', ITA: 'it',
+            ENG: 'gb', NLD: 'nl', BEL: 'be', USA: 'us', JPN: 'jp', KOR: 'kr', MAR: 'ma', UZ: 'uz',
+            PT: 'pt', BR: 'br', AR: 'ar', ES: 'es', DE: 'de', FR: 'fr', IT: 'it', US: 'us'
+        };
+        const c = mapping[code] || code.substring(0, 2).toLowerCase();
+        return `<img src="https://flagcdn.com/w40/${c}.png" class="flag-icon-img" alt="${code}" style="width:24px; height:15px; border-radius:2px; object-fit:cover; vertical-align:middle; margin-right:6px; border:1px solid rgba(255,255,255,0.15)">`;
+    }
+
     renderMenuTeams() {
         const grid = document.getElementById('teams-selector-grid');
         if (!grid) return;
@@ -1491,7 +1501,7 @@ class UltraFootballMatch {
             const t = this.teamsDb[id];
             const btn = document.createElement('button');
             btn.className = `team-btn ${id === this.selectedTeam ? 'active' : ''}`;
-            btn.innerHTML = `<span style="font-size:1.6rem">${t.flag}</span> ${t.name}`;
+            btn.innerHTML = `${this.getFlagImg(id)} ${t.name}`;
             btn.addEventListener('click', () => {
                 document.querySelectorAll('#teams-selector-grid .team-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
@@ -1740,8 +1750,8 @@ class UltraFootballMatch {
 
             document.getElementById('hud-home-name').innerText = customProfile.clubName.substring(0, 10).toUpperCase();
             document.getElementById('hud-away-name').innerText = this.selectedOpponent;
-            document.getElementById('hud-home-flag').innerText = customProfile.country;
-            document.getElementById('hud-away-flag').innerText = aTeam.flag;
+            document.getElementById('hud-home-flag').innerHTML = this.getFlagImg(customProfile.countryCode);
+            document.getElementById('hud-away-flag').innerHTML = this.getFlagImg(this.selectedOpponent);
 
             document.getElementById('hud-home-score').innerText = '0';
             document.getElementById('hud-away-score').innerText = '0';
@@ -1794,7 +1804,7 @@ class UltraFootballMatch {
         const coinsVal = document.getElementById('club-coins-val');
         if (coinsVal) coinsVal.innerText = profile.coins;
         const flagLabel = document.getElementById('club-flag-label');
-        if (flagLabel) flagLabel.innerText = profile.country;
+        if (flagLabel) flagLabel.innerHTML = this.getFlagImg(profile.countryCode);
         const nameLabel = document.getElementById('club-name-label');
         if (nameLabel) nameLabel.innerText = profile.clubName;
         const avatarLabel = document.getElementById('club-avatar-label');
