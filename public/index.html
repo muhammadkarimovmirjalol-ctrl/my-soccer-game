@@ -3,26 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>FC MOBILE 3D - Ultimate Soccer Match</title>
-    
-    <!-- Google Fonts & FontAwesome -->
+    <title>FC MOBILE 3D - Milliy va Klublar Chempionati</title>
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Premium Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <!-- Premium Stylesheet -->
-    <link rel="stylesheet" href="style.css?v=3.1">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <!-- Splash Screen Loader -->
+    <!-- Cinematic 3D Intro & Loading Screen -->
     <div id="loading-screen" class="splash-container">
         <div class="splash-content">
-            <i class="fa-solid fa-futbol splash-ball-icon"></i>
-            <h1 class="splash-logo">FC MOBILE <span>3D</span></h1>
-            <div class="progress-bar-container">
-                <div id="progress-bar" class="progress-bar"></div>
+            <div class="splash-logo">
+                <i class="fa-solid fa-futbol splash-spin-ball"></i>
+            </div>
+            <h1 class="splash-title">FC MOBILE <span class="accent-text">3D</span></h1>
+            <div class="progress-container">
+                <div class="progress-bar" id="progress-bar"></div>
             </div>
             <p class="splash-sub">Stadion tayyorlanmoqda...</p>
+        </div>
+    </div>
+
+    <!-- First Time Profile Setup Modal -->
+    <div id="profile-setup-modal" class="overlay-screen hidden">
+        <div class="modal-card profile-setup-card">
+            <h2><i class="fa-solid fa-user-gear text-primary"></i> YANGI KLUB PROFILI</h2>
+            <p>Klubingiz nomini kiriting va mamlakat bayrog'ini tanlang!</p>
+            
+            <div class="input-group">
+                <label for="setup-club-name">Klub nomi:</label>
+                <input type="text" id="setup-club-name" placeholder="Toshkent Yulduzlari FK" value="Yulduzlar FK" maxlength="22">
+            </div>
+
+            <div class="input-group">
+                <label>Mamlakat bayrog'i:</label>
+                <div class="flags-setup-grid" id="setup-flags-grid">
+                    <span class="flag-setup-item active" data-code="UZB" data-flag="🇺🇿">🇺🇿 UZB</span>
+                    <span class="flag-setup-item" data-code="POR" data-flag="🇵🇹">🇵🇹 POR</span>
+                    <span class="flag-setup-item" data-code="BRA" data-flag="🇧🇷">🇧🇷 BRA</span>
+                    <span class="flag-setup-item" data-code="ARG" data-flag="🇦🇷">🇦🇷 ARG</span>
+                    <span class="flag-setup-item" data-code="ESP" data-flag="🇪🇸">🇪🇸 ESP</span>
+                    <span class="flag-setup-item" data-code="DEU" data-flag="🇩🇪">🇩🇪 GER</span>
+                    <span class="flag-setup-item" data-code="FRA" data-flag="🇫🇷">🇫🇷 FRA</span>
+                    <span class="flag-setup-item" data-code="ITA" data-flag="🇮🇹">🇮🇹 ITA</span>
+                    <span class="flag-setup-item" data-code="ENG" data-flag="🏴󠁧󠁢󠁥󠁮󠁧󠁿">🏴󠁧󠁢󠁥󠁮󠁧󠁿 ENG</span>
+                    <span class="flag-setup-item" data-code="NLD" data-flag="🇳🇱">🇳🇱 NED</span>
+                    <span class="flag-setup-item" data-code="BEL" data-flag="🇧🇪">🇧🇪 BEL</span>
+                    <span class="flag-setup-item" data-code="USA" data-flag="🇺🇸">🇺🇸 USA</span>
+                    <span class="flag-setup-item" data-code="JPN" data-flag="🇯🇵">🇯🇵 JPN</span>
+                    <span class="flag-setup-item" data-code="KOR" data-flag="🇰🇷">🇰🇷 KOR</span>
+                    <span class="flag-setup-item" data-code="MAR" data-flag="🇲🇦">🇲🇦 MAR</span>
+                </div>
+            </div>
+
+            <button id="save-profile-btn" class="glow-btn">PROFILNI YARATISH 🚀</button>
         </div>
     </div>
 
@@ -33,82 +69,204 @@
                 <i class="fa-solid fa-futbol gold-trophy"></i>
                 <span>FC MOBILE 3D</span>
             </div>
-            <div class="user-profile-widget">
-                <span id="player-name-display"><i class="fa-solid fa-circle-user"></i> Kapitan</span>
+            <!-- Club Info Display Header Widget -->
+            <div class="club-info-widget">
+                <span id="club-flag-label" class="widget-flag">🇺🇿</span>
+                <span id="club-name-label" class="widget-name">Yulduzlar FK</span>
+                <span class="widget-coins"><i class="fa-solid fa-coins text-gold"></i> <span id="club-coins-val">1200</span></span>
             </div>
         </div>
 
+        <!-- Dashboard Navigation Tabs -->
+        <div class="menu-tabs-bar">
+            <button class="menu-tab-btn active" data-tab="play-tab"><i class="fa-solid fa-play"></i> O'YIN</button>
+            <button class="menu-tab-btn" data-tab="squad-tab"><i class="fa-solid fa-shirt"></i> TARKIB</button>
+            <button class="menu-tab-btn" data-tab="market-tab"><i class="fa-solid fa-shop"></i> BOZOR</button>
+            <button class="menu-tab-btn" data-tab="achievements-tab"><i class="fa-solid fa-award"></i> SOVRINLAR</button>
+        </div>
+
         <div class="menu-body">
-            <div class="hero-card">
-                <h2>CHAMPIONS CUP</h2>
-                <p>O'yin sozlamalari, ob-havo va jamoalarni tanlang va maydonga tushing!</p>
-                
-                <div class="selection-tabs">
-                    <!-- Team Selector -->
-                    <div class="selection-section">
-                        <label><i class="fa-solid fa-flag"></i> Jamoangizni tanlang:</label>
-                        <div class="teams-grid" id="teams-selector-grid">
-                            <!-- Injected dynamically -->
+            <!-- TAB 1: PLAY (Main Selection Mode Screen) -->
+            <div id="play-tab" class="tab-content active-tab">
+                <div class="hero-card">
+                    <h2>MATCH DAY</h2>
+                    <p>Ob-havo, raqib va o'yin rejimini sozlab chempionatni boshlang!</p>
+                    
+                    <div class="selection-tabs">
+                        <!-- Opponent Team Selector -->
+                        <div class="selection-section">
+                            <label><i class="fa-solid fa-flag"></i> Raqib jamoani tanlang:</label>
+                            <div class="teams-grid" id="teams-selector-grid">
+                                <!-- Injected dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Weather & Stadium Picker -->
+                        <div class="selection-section">
+                            <label><i class="fa-solid fa-cloud-sun"></i> Ob-havo & Stadion:</label>
+                            <div class="weather-grid">
+                                <button class="weather-btn active" data-weather="night"><i class="fa-solid fa-moon"></i> Tungi Arena</button>
+                                <button class="weather-btn" data-weather="sunny"><i class="fa-solid fa-sun"></i> Quyoshli Kun</button>
+                                <button class="weather-btn" data-weather="rain"><i class="fa-solid fa-cloud-showers-water"></i> Yomg'irli Chim</button>
+                                <button class="weather-btn" data-weather="desert"><i class="fa-solid fa-wind"></i> Desert Arena</button>
+                            </div>
+                        </div>
+
+                        <!-- Game Mode Selector -->
+                        <div class="selection-section">
+                            <label><i class="fa-solid fa-gamepad"></i> O'yin rejimi:</label>
+                            <div class="mode-grid">
+                                <button class="mode-btn active" data-mode="match"><i class="fa-solid fa-trophy"></i> Tezkor O'yin</button>
+                                <button class="mode-btn" data-mode="training"><i class="fa-solid fa-dumbbell"></i> Mashq maydoni</button>
+                            </div>
+                        </div>
+
+                        <!-- Training Drills Selector (Conditionally shown) -->
+                        <div class="selection-section hidden" id="drills-section">
+                            <label><i class="fa-solid fa-list-check"></i> Mashg'ulot turi:</label>
+                            <div class="drills-grid">
+                                <button class="drill-btn active" data-drill="dribble"><i class="fa-solid fa-shuffle"></i> Dribling Poligoni</button>
+                                <button class="drill-btn" data-drill="pass"><i class="fa-solid fa-arrows-spin"></i> Nishonlarga Pas</button>
+                                <button class="drill-btn" data-drill="shoot"><i class="fa-solid fa-bullseye"></i> Darvozaga Zarba</button>
+                                <button class="drill-btn" data-drill="tackle"><i class="fa-solid fa-shield-halved"></i> To'pni tortib olish</button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Weather Picker -->
-                    <div class="selection-section">
-                        <label><i class="fa-solid fa-cloud-sun"></i> Stadion ob-havosi:</label>
-                        <div class="weather-grid">
-                            <button class="weather-btn active" data-weather="night"><i class="fa-solid fa-moon"></i> Tungi Arena</button>
-                            <button class="weather-btn" data-weather="sunny"><i class="fa-solid fa-sun"></i> Quyoshli Kun</button>
-                            <button class="weather-btn" data-weather="rain"><i class="fa-solid fa-cloud-showers-water"></i> Yomg'irli Chim</button>
-                            <button class="weather-btn" data-weather="desert"><i class="fa-solid fa-wind"></i> Desert Arena</button>
+                    <button id="start-game-btn" class="glow-btn">START MATCH ⚽</button>
+                </div>
+
+                <!-- Side Panel: Stats/Leaderboard & Controls -->
+                <div class="side-panel">
+                    <div class="panel-card stats-display-card">
+                        <h3><i class="fa-solid fa-chart-line text-primary"></i> KLUB STATISTIKASI</h3>
+                        <div class="stats-mini-grid">
+                            <div><span>O'yinlar:</span> <span id="stats-games-played" class="text-white font-bold">0</span></div>
+                            <div><span>G'alabalar:</span> <span id="stats-games-won" class="text-green font-bold">0</span></div>
+                            <div><span>Mag'lubiyat:</span> <span id="stats-games-lost" class="text-red font-bold">0</span></div>
+                            <div><span>Trofiylar:</span> <span id="stats-trophies" class="text-gold font-bold">0</span></div>
                         </div>
                     </div>
 
-                    <!-- Game Mode Selector -->
-                    <div class="selection-section">
-                        <label><i class="fa-solid fa-gamepad"></i> O'yin rejimi:</label>
-                        <div class="mode-grid">
-                            <button class="mode-btn active" data-mode="match"><i class="fa-solid fa-trophy"></i> Tezkor O'yin</button>
-                            <button class="mode-btn" data-mode="training"><i class="fa-solid fa-dumbbell"></i> Mashq maydoni</button>
-                        </div>
-                    </div>
-
-                    <!-- Training Drills Picker -->
-                    <div class="selection-section hidden" id="drills-section">
-                        <label><i class="fa-solid fa-dumbbell"></i> Mashg'ulot turini tanlang:</label>
-                        <div class="drills-grid">
-                            <button class="drill-btn active" data-drill="dribble"><i class="fa-solid fa-shuffle"></i> Aldashib o'tish (Zig-zag)</button>
-                            <button class="drill-btn" data-drill="pass"><i class="fa-solid fa-arrows-spin"></i> To'p uzatish (Precision)</button>
-                            <button class="drill-btn" data-drill="shoot"><i class="fa-solid fa-bullseye"></i> Gol urish (Targets)</button>
-                            <button class="drill-btn" data-drill="tackle"><i class="fa-solid fa-shield-halved"></i> Podkat mashqi (Tackling)</button>
+                    <div class="panel-card leaderboard-card">
+                        <h3><i class="fa-solid fa-ranking-star"></i> GLOBAL LEADERBOARD</h3>
+                        <div class="leaderboard-list" id="leaderboard-list">
+                            <div class="loading-leaderboard">Yuklanmoqda...</div>
                         </div>
                     </div>
                 </div>
-
-                <button id="start-game-btn" class="glow-btn">
-                    START MATCH ⚽
-                </button>
             </div>
 
-            <!-- Leaderboard & Controls Panel -->
-            <div class="side-panel">
-                <div class="panel-card leaderboard-card">
-                    <h3><i class="fa-solid fa-ranking-star"></i> GLOBAL LEADERBOARD</h3>
-                    <div class="leaderboard-list" id="leaderboard-list">
-                        <div class="loading-leaderboard">Yuklanmoqda...</div>
+            <!-- TAB 2: SQUAD EDITOR (Tactical Formation Pitch) -->
+            <div id="squad-tab" class="tab-content">
+                <div class="squad-layout-container">
+                    <div class="pitch-container-wrapper">
+                        <h3>TARKIB VA STRATEGIYA</h3>
+                        <!-- Formations Picker -->
+                        <div class="formation-selector-bar">
+                            <span>Formatsiya:</span>
+                            <button class="formation-btn active" data-formation="4-3-3">4-3-3</button>
+                            <button class="formation-btn" data-formation="4-4-2">4-4-2</button>
+                            <button class="formation-btn" data-formation="3-5-2">3-5-2</button>
+                        </div>
+                        
+                        <!-- 2D Mini Tactical Field Grid -->
+                        <div class="tactical-field-grid">
+                            <!-- Field grass layout stripes are CSS backgrounds -->
+                            <div class="field-stripe-row"></div>
+                            
+                            <!-- Tactical slots -->
+                            <div class="field-player-slot slot-fw" data-role="FW">
+                                <div class="player-slot-badge"><i class="fa-solid fa-person-running"></i> FW</div>
+                                <span class="slot-player-name">FW Name</span>
+                                <span class="slot-player-rating">90</span>
+                            </div>
+                            
+                            <div class="field-player-slot slot-mf" data-role="MF">
+                                <div class="player-slot-badge"><i class="fa-solid fa-person-running"></i> MF</div>
+                                <span class="slot-player-name">MF Name</span>
+                                <span class="slot-player-rating">85</span>
+                            </div>
+
+                            <div class="field-player-slot slot-df" data-role="DF">
+                                <div class="player-slot-badge"><i class="fa-solid fa-person-running"></i> DF</div>
+                                <span class="slot-player-name">DF Name</span>
+                                <span class="slot-player-rating">80</span>
+                            </div>
+
+                            <div class="field-player-slot slot-gk" data-role="GK">
+                                <div class="player-slot-badge"><i class="fa-solid fa-hand-holding-hand"></i> GK</div>
+                                <span class="slot-player-name">GK Name</span>
+                                <span class="slot-player-rating">82</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Substitute card -->
+                        <div class="substitute-slot-bar">
+                            <span>Zaxira (SUB):</span>
+                            <div class="field-player-slot slot-sub" data-role="SUB">
+                                <span class="slot-player-name">SUB Name</span>
+                                <span class="slot-player-rating">81</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Squad Roster List Panel -->
+                    <div class="roster-panel-card">
+                        <h3><i class="fa-solid fa-shirt text-primary"></i> KLUB A'ZOLARI</h3>
+                        <p class="panel-tip">Pozitsiyadagi o'yinchini almashtirish uchun maydondagi slotni yoki o'yinchi kartasini bosing.</p>
+                        <div class="squad-roster-list" id="owned-roster-list">
+                            <!-- Dynamically loaded player cards -->
+                        </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="panel-card controls-card">
-                    <h3><i class="fa-solid fa-sliders"></i> O'YIN BOSHQARUVI</h3>
-                    <ul>
-                        <li><span class="key">WASD / Arrow Keys</span> - Harakatlanish</li>
-                        <li><span class="key">Q / SWITCH</span> - O'yinchini almashtirish</li>
-                        <li><span class="key">Probel / ZARBA</span> - Darvozaga zarba</li>
-                        <li><span class="key">K / PAS</span> - Jamoadoshga pas</li>
-                        <li><span class="key">I / VPRAREZ</span> - Kesib pas berish</li>
-                        <li><span class="key">O / PODKAT</span> - Sirpanib to'pni olish</li>
-                    </ul>
+            <!-- TAB 3: TRANSFER MARKET (Buy Card Packs) -->
+            <div id="market-tab" class="tab-content">
+                <div class="market-container">
+                    <div class="market-header">
+                        <h2>TRANSFER BOZORI</h2>
+                        <p>Jamoangiz reytingini oshirish uchun yuqori statsli futbolchilarni tangalarga sotib oling!</p>
+                    </div>
+                    <div class="market-grid-cards" id="market-cards-grid">
+                        <!-- Cards injected from database -->
+                    </div>
                 </div>
+            </div>
+
+            <!-- TAB 4: ACHIEVEMENTS & QUESTS -->
+            <div id="achievements-tab" class="tab-content">
+                <div class="achievements-container">
+                    <h2>MUKOFOTLAR VA VAZIFALAR</h2>
+                    <p>Kunlik topshiriqlarni bajaring va jamoa byudjeti uchun bepul tangalarga ega bo'ling!</p>
+                    <div class="achievements-list-wrapper" id="achievements-list">
+                        <!-- Items list -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Controls Guide footer inside menu -->
+        <div class="menu-footer-controls">
+            <span><i class="fa-solid fa-keyboard"></i> WASD / Arrows: Yugurish</span> | 
+            <span>Space: ZARBA</span> | 
+            <span>K: PAS</span> | 
+            <span>I: VPRAREZ</span> | 
+            <span>O: PODKAT</span> | 
+            <span>Shift: FEINT</span>
+        </div>
+    </div>
+
+    <!-- Active Player Swap Selector Dialog Modal -->
+    <div id="player-swap-modal" class="overlay-screen hidden">
+        <div class="modal-card selection-swap-card">
+            <div class="modal-header-row">
+                <h3><span id="swap-role-label">FW</span> POZITSIYASIGA O'YINCHI TANLASH</h3>
+                <button class="close-swap-modal-btn" id="btn-close-swap"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="swap-player-options-grid" id="swap-options-grid">
+                <!-- Dynamically loaded selectable options -->
             </div>
         </div>
     </div>
@@ -134,13 +292,20 @@
                 <span id="hud-away-name" class="team-name">BRA</span>
                 <span class="score-flag" id="hud-away-flag">🇧🇷</span>
             </div>
-            <button id="btn-camera-view" class="scoreboard-menu-btn" style="margin-right: 15px;" title="Camera ko'rinishini o'zgartirish"><i class="fa-solid fa-camera"></i> CAM</button>
+            <button id="btn-camera-view" class="scoreboard-menu-btn" style="margin-right: 15px;" title="Camera view"><i class="fa-solid fa-camera"></i> CAM</button>
             <button id="menu-btn" class="scoreboard-menu-btn"><i class="fa-solid fa-bars"></i></button>
         </div>
 
         <!-- Coach whistle notice -->
         <div id="referee-whistle-banner" class="whistle-banner hidden">
             <i class="fa-solid fa-bullhorn"></i> MATCH STARTED! 🏁
+        </div>
+
+        <!-- Live Commentary text ticker -->
+        <div id="commentary-banner" class="commentary-banner">
+            <div class="commentary-inner">
+                <i class="fa-solid fa-microphone-lines text-primary"></i> <span id="commentary-text">O'yin boshlanish arafasida...</span>
+            </div>
         </div>
 
         <!-- Referee Card Display Overlay -->
@@ -174,6 +339,13 @@
             <div class="active-player-name" id="hud-active-player">C. RONALDO</div>
             <div class="active-player-stamina"><div id="stamina-fill" class="stamina-fill"></div></div>
         </div>
+    </div>
+
+    <!-- Cinematic Slow-Mo Replay Tape Banner overlay -->
+    <div id="replay-tape-banner" class="replay-tape-overlay hidden">
+        <div class="tape-header"><i class="fa-solid fa-circle text-red blinking-dot"></i> ● INSTANT REPLAY (SEKINLASHTIRILGAN TASVIR)</div>
+        <div class="tape-border top"></div>
+        <div class="tape-border bottom"></div>
     </div>
 
     <!-- Goal Slow-Mo Celebration Replay Banner -->
@@ -222,7 +394,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     
-    <!-- Game Source -->
-    <script src="js/game.js?v=3.1"></script>
+    <!-- Game Source scripts -->
+    <script src="js/database.js"></script>
+    <script src="js/game.js?v=4.0"></script>
 </body>
 </html>

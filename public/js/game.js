@@ -531,20 +531,39 @@ class UltraFootballMatch {
         this.homeTeamPlayers = [];
         this.awayTeamPlayers = [];
 
-        const hColor = this.teamsDb[this.selectedTeam].color;
+        const db = window.gameDb;
+        const profile = db.state.profile;
+        const squad = db.getActiveSquadPlayers();
+        const formation = profile.activeFormation;
+
+        const hColor = profile.logoColor;
         const aColor = this.teamsDb[this.selectedOpponent].color;
 
         // HOME TEAM
-        const gkHome = this.createPlayerMesh(0xff9900, "GK", "H_GK");
+        const gkHome = this.createPlayerMesh(0xff9900, "GK", squad.GK.name);
         gkHome.position.set(0, 0, 48);
-        const dfHome = this.createPlayerMesh(hColor, "DF", "H_DF");
-        dfHome.position.set(0, 0, 25);
-        const mfHome = this.createPlayerMesh(hColor, "MF", "H_MF");
-        mfHome.position.set(-8, 0, 10);
-        const fwHome = this.createPlayerMesh(hColor, "FW", "C. RONALDO");
-        fwHome.position.set(0, 0, 2);
-        const subHome = this.createPlayerMesh(hColor, "SUB", "H_SUB");
-        subHome.position.set(8, 0, 15);
+
+        const dfHome = this.createPlayerMesh(hColor, "DF", squad.DF.name);
+        const mfHome = this.createPlayerMesh(hColor, "MF", squad.MF.name);
+        const fwHome = this.createPlayerMesh(hColor, "FW", squad.FW.name);
+        const subHome = this.createPlayerMesh(hColor, "SUB", squad.SUB.name);
+
+        if (formation === '4-4-2') {
+            dfHome.position.set(-6, 0, 25);
+            mfHome.position.set(-8, 0, 12);
+            fwHome.position.set(-3, 0, 2);
+            subHome.position.set(8, 0, 12);
+        } else if (formation === '3-5-2') {
+            dfHome.position.set(0, 0, 25);
+            mfHome.position.set(-8, 0, 10);
+            fwHome.position.set(-3, 0, 2);
+            subHome.position.set(8, 0, 10);
+        } else { // 4-3-3 (default)
+            dfHome.position.set(0, 0, 25);
+            mfHome.position.set(-8, 0, 12);
+            fwHome.position.set(0, 0, 2);
+            subHome.position.set(8, 0, 10);
+        }
 
         this.homeTeamPlayers.push(gkHome, dfHome, mfHome, fwHome, subHome);
         this.homeTeamPlayers.forEach(p => this.scene.add(p));
@@ -1178,12 +1197,27 @@ class UltraFootballMatch {
         document.getElementById('match-timer').innerText = `${mins}:${secs}`;
         document.getElementById('stamina-fill').style.width = this.stamina + '%';
 
+        // Add some random commentary during the game
+        if (Math.random() < 0.0015) {
+            const comments = [
+                "Jamoalar to'p uchun keskin kurash olib borishmoqda!",
+                "Ajoyib paslar uzatilmoqda, stadion gulduramoqda!",
+                "Muxlislar hayqirig'i jamoalarga kuch bag'ishlayapti!",
+                "Darvozabon xushyorlikni yo'qotganicha yo'q!"
+            ];
+            this.addCommentary(comments[Math.floor(Math.random() * comments.length)]);
+        }
+
         if (this.matchTime >= 90) {
             this.isPlaying = false;
             document.getElementById('final-goals-val').innerText = this.homeScore;
             document.getElementById('final-opp-goals-val').innerText = this.awayScore;
             document.getElementById('game-over-modal').classList.remove('hidden');
             document.getElementById('game-hud').classList.add('hidden');
+            
+            // Record stats in local database
+            window.gameDb.updateStats(this.homeScore > this.awayScore);
+            window.gameDb.incrementGoals(this.homeScore);
         }
     }
 
@@ -1247,8 +1281,14 @@ class UltraFootballMatch {
     }
 
     triggerGoal(isHome) {
-        if (isHome) this.homeScore++;
-        else this.awayScore++;
+        if (isHome) {
+            this.homeScore++;
+            window.gameDb.incrementGoals(1);
+            this.addCommentary(`GOOOOL!!! ${this.activePlayer.userData.name} raqib darvozasini ishg'ol etdi!`);
+        } else {
+            this.awayScore++;
+            this.addCommentary("Gol! Raqib jamoa hisobni o'zgartirdi!");
+        }
 
         document.getElementById('hud-home-score').innerText = this.homeScore;
         document.getElementById('hud-away-score').innerText = this.awayScore;
@@ -1265,12 +1305,7 @@ class UltraFootballMatch {
         const overlay = document.getElementById('goal-announcement');
         if (overlay) overlay.classList.remove('hidden');
 
-        this.isPlaying = false;
-        setTimeout(() => {
-            if (overlay) overlay.classList.add('hidden');
-            this.resetBall();
-            this.isPlaying = true;
-        }, 3000);
+        this.startReplaySequence(isHome);
     }
 
     triggerFoul(player) {
@@ -1308,12 +1343,29 @@ class UltraFootballMatch {
         this.hasBallControl = false;
         this.kickoffImmunityTime = 5.0;
 
+        const db = window.gameDb;
+        const profile = db.state.profile;
+        const formation = profile.activeFormation;
+
         if (this.homeTeamPlayers && this.homeTeamPlayers.length >= 5) {
             this.homeTeamPlayers[0].position.set(0, 0, 48); // GK
-            this.homeTeamPlayers[1].position.set(0, 0, 25); // DF
-            this.homeTeamPlayers[2].position.set(-8, 0, 10); // MF
-            this.homeTeamPlayers[3].position.set(0, 0, 2); // FW
-            this.homeTeamPlayers[4].position.set(8, 0, 15); // SUB
+            
+            if (formation === '4-4-2') {
+                this.homeTeamPlayers[1].position.set(-6, 0, 25); // DF
+                this.homeTeamPlayers[2].position.set(-8, 0, 12); // MF
+                this.homeTeamPlayers[3].position.set(-3, 0, 2);  // FW
+                this.homeTeamPlayers[4].position.set(8, 0, 12);  // SUB (active second MF)
+            } else if (formation === '3-5-2') {
+                this.homeTeamPlayers[1].position.set(0, 0, 25);  // DF
+                this.homeTeamPlayers[2].position.set(-8, 0, 10); // MF
+                this.homeTeamPlayers[3].position.set(-3, 0, 2);  // FW
+                this.homeTeamPlayers[4].position.set(8, 0, 10);  // SUB (active second MF)
+            } else { // 4-3-3 (default)
+                this.homeTeamPlayers[1].position.set(0, 0, 25);  // DF
+                this.homeTeamPlayers[2].position.set(-8, 0, 12); // MF
+                this.homeTeamPlayers[3].position.set(0, 0, 2);   // FW
+                this.homeTeamPlayers[4].position.set(8, 0, 10);  // SUB (active second winger)
+            }
             this.activePlayer = this.homeTeamPlayers[3];
         }
 
@@ -1442,6 +1494,97 @@ class UltraFootballMatch {
     }
 
     bindMenuButtons() {
+        // Tab switching logic
+        document.querySelectorAll('.menu-tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.menu-tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active-tab'));
+                
+                const tabId = e.currentTarget.dataset.tab;
+                e.currentTarget.classList.add('active');
+                document.getElementById(tabId).classList.add('active-tab');
+                
+                this.renderDashboard();
+            });
+        });
+
+        // Profile Setup Modal flag selection
+        document.querySelectorAll('.flag-setup-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                document.querySelectorAll('.flag-setup-item').forEach(i => i.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+            });
+        });
+
+        // Profile Setup Modal color selection
+        document.querySelectorAll('.color-dot').forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+            });
+        });
+
+        // Save Profile button
+        const saveProfBtn = document.getElementById('save-profile-btn');
+        if (saveProfBtn) {
+            saveProfBtn.addEventListener('click', () => {
+                const nameInput = document.getElementById('setup-club-name').value.trim() || 'Yulduzlar FK';
+                const activeFlag = document.querySelector('.flag-setup-item.active');
+                const activeColor = document.querySelector('.color-dot.active');
+
+                const flag = activeFlag ? activeFlag.dataset.flag : '🇺🇿';
+                const code = activeFlag ? activeFlag.dataset.code : 'UZB';
+                const colorHex = activeColor ? activeColor.dataset.color : '#00c3ff';
+
+                window.gameDb.state.profile.clubName = nameInput;
+                window.gameDb.state.profile.country = flag;
+                window.gameDb.state.profile.countryCode = code;
+                window.gameDb.state.profile.logoColor = parseInt(colorHex.replace('#', '0x'));
+
+                window.gameDb.save();
+                localStorage.setItem('fc_mobile_3d_profile_configured', 'true');
+
+                document.getElementById('profile-setup-modal').classList.add('hidden');
+                this.renderDashboard();
+                this.buildPlayers();
+            });
+        }
+
+        // Formation selections
+        document.querySelectorAll('.formation-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const formStr = e.currentTarget.dataset.formation;
+                window.gameDb.state.profile.activeFormation = formStr;
+                window.gameDb.save();
+                this.renderDashboard();
+                this.buildPlayers();
+            });
+        });
+
+        // 2D Tactical Pitch slot selections to open Swap Dialog
+        document.querySelectorAll('.field-player-slot').forEach(slot => {
+            slot.addEventListener('click', (e) => {
+                const role = e.currentTarget.dataset.role;
+                this.openSwapModal(role);
+            });
+        });
+
+        // Close Swap Modal button
+        const closeSwapBtn = document.getElementById('btn-close-swap');
+        if (closeSwapBtn) {
+            closeSwapBtn.addEventListener('click', () => {
+                document.getElementById('player-swap-modal').classList.add('hidden');
+            });
+        }
+
+        // Check if first-time setup is needed
+        if (!localStorage.getItem('fc_mobile_3d_profile_configured')) {
+            document.getElementById('profile-setup-modal').classList.remove('hidden');
+        } else {
+            this.renderDashboard();
+        }
+
+        // Weather selections
         document.querySelectorAll('.weather-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.weather-btn').forEach(b => b.classList.remove('active'));
@@ -1451,6 +1594,7 @@ class UltraFootballMatch {
             });
         });
 
+        // Mode selections
         document.querySelectorAll('.mode-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
@@ -1467,6 +1611,7 @@ class UltraFootballMatch {
             });
         });
 
+        // Drills selections
         document.querySelectorAll('.drill-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.drill-btn').forEach(b => b.classList.remove('active'));
@@ -1476,16 +1621,17 @@ class UltraFootballMatch {
             });
         });
 
+        // Start match
         document.getElementById('start-game-btn').addEventListener('click', () => {
             document.getElementById('main-menu').classList.add('hidden');
             document.getElementById('game-hud').classList.remove('hidden');
 
-            const hTeam = this.teamsDb[this.selectedTeam];
+            const customProfile = window.gameDb.state.profile;
             const aTeam = this.teamsDb[this.selectedOpponent];
 
-            document.getElementById('hud-home-name').innerText = this.selectedTeam;
+            document.getElementById('hud-home-name').innerText = customProfile.clubName.substring(0, 10).toUpperCase();
             document.getElementById('hud-away-name').innerText = this.selectedOpponent;
-            document.getElementById('hud-home-flag').innerText = hTeam.flag;
+            document.getElementById('hud-home-flag').innerText = customProfile.country;
             document.getElementById('hud-away-flag').innerText = aTeam.flag;
 
             document.getElementById('hud-home-score').innerText = '0';
@@ -1502,6 +1648,7 @@ class UltraFootballMatch {
             this.buildTrainingProps();
 
             gameAudio.playWhistle();
+            this.addCommentary("Hakam hushtagi chalindi! O'yin boshlandi! 🏁");
 
             const banner = document.getElementById('referee-whistle-banner');
             if (banner) {
@@ -1526,7 +1673,266 @@ class UltraFootballMatch {
             }
             document.getElementById('game-over-modal').classList.add('hidden');
             document.getElementById('main-menu').classList.remove('hidden');
+            this.renderDashboard();
         });
+    }
+
+    renderDashboard() {
+        const db = window.gameDb;
+        const profile = db.state.profile;
+
+        // Update top info displays
+        const coinsVal = document.getElementById('club-coins-val');
+        if (coinsVal) coinsVal.innerText = profile.coins;
+        const flagLabel = document.getElementById('club-flag-label');
+        if (flagLabel) flagLabel.innerText = profile.country;
+        const nameLabel = document.getElementById('club-name-label');
+        if (nameLabel) nameLabel.innerText = profile.clubName;
+
+        // Stats card display
+        const gpVal = document.getElementById('stats-games-played');
+        if (gpVal) gpVal.innerText = profile.matchesPlayed;
+        const gwVal = document.getElementById('stats-games-won');
+        if (gwVal) gwVal.innerText = profile.wins;
+        const glVal = document.getElementById('stats-games-lost');
+        if (glVal) glVal.innerText = profile.losses;
+        const gtVal = document.getElementById('stats-trophies');
+        if (gtVal) gtVal.innerText = profile.trophies;
+
+        // Render active squad on tactical pitch
+        const squad = db.getActiveSquadPlayers();
+        const activeFormation = profile.activeFormation;
+
+        // Sync active formation button class
+        document.querySelectorAll('.formation-btn').forEach(btn => {
+            if (btn.dataset.formation === activeFormation) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        const nameFw = document.querySelector('.slot-fw .slot-player-name');
+        const ratFw = document.querySelector('.slot-fw .slot-player-rating');
+        if (nameFw && ratFw) {
+            nameFw.innerText = squad.FW.name;
+            ratFw.innerText = squad.FW.rating;
+        }
+
+        const nameMf = document.querySelector('.slot-mf .slot-player-name');
+        const ratMf = document.querySelector('.slot-mf .slot-player-rating');
+        if (nameMf && ratMf) {
+            nameMf.innerText = squad.MF.name;
+            ratMf.innerText = squad.MF.rating;
+        }
+
+        const nameDf = document.querySelector('.slot-df .slot-player-name');
+        const ratDf = document.querySelector('.slot-df .slot-player-rating');
+        if (nameDf && ratDf) {
+            nameDf.innerText = squad.DF.name;
+            ratDf.innerText = squad.DF.rating;
+        }
+
+        const nameGk = document.querySelector('.slot-gk .slot-player-name');
+        const ratGk = document.querySelector('.slot-gk .slot-player-rating');
+        if (nameGk && ratGk) {
+            nameGk.innerText = squad.GK.name;
+            ratGk.innerText = squad.GK.rating;
+        }
+
+        const nameSub = document.querySelector('.slot-sub .slot-player-name');
+        const ratSub = document.querySelector('.slot-sub .slot-player-rating');
+        if (nameSub && ratSub) {
+            nameSub.innerText = squad.SUB.name;
+            ratSub.innerText = squad.SUB.rating;
+        }
+
+        // Render owned roster list card items
+        const rosterContainer = document.getElementById('owned-roster-list');
+        if (rosterContainer) {
+            rosterContainer.innerHTML = '';
+            db.state.ownedPlayers.forEach(id => {
+                const p = db.getPlayer(id);
+                if (!p) return;
+                const card = document.createElement('div');
+                card.className = 'player-list-card';
+                card.innerHTML = `
+                    <div class="player-card-info-left">
+                        <span class="card-rating-badge">${p.rating}</span>
+                        <div>
+                            <div class="card-name-title">${p.country} ${p.name}</div>
+                            <div class="card-role-title">${p.role}</div>
+                        </div>
+                    </div>
+                    <div class="player-card-stats-right">
+                        <span>PAC ${p.pac}</span>
+                        <span>SHO ${p.sho}</span>
+                        <span>PAS ${p.pas}</span>
+                        <span>DEF ${p.def}</span>
+                    </div>
+                `;
+                rosterContainer.appendChild(card);
+            });
+        }
+
+        // Render Transfer Market cards
+        const marketContainer = document.getElementById('market-cards-grid');
+        if (marketContainer) {
+            marketContainer.innerHTML = '';
+            db.fictionalPlayers.forEach(p => {
+                const isOwned = db.state.ownedPlayers.includes(p.id);
+                const card = document.createElement('div');
+                card.className = 'market-player-card';
+                card.innerHTML = `
+                    <span class="market-card-rating">${p.rating}</span>
+                    <span class="market-card-flag">${p.country}</span>
+                    <div class="market-card-avatar"><i class="fa-solid fa-shirt"></i></div>
+                    <div class="market-card-name">${p.name}</div>
+                    <div class="market-card-role">${p.role}</div>
+                    <div class="market-card-stats-grid">
+                        <div><span>${p.pac}</span><span>PAC</span></div>
+                        <div><span>${p.sho}</span><span>SHO</span></div>
+                        <div><span>${p.pas}</span><span>PAS</span></div>
+                        <div><span>${p.def}</span><span>DEF</span></div>
+                        <div><span>${p.phy}</span><span>PHY</span></div>
+                    </div>
+                    <button class="market-buy-btn" data-id="${p.id}" ${isOwned ? 'disabled' : ''}>
+                        ${isOwned ? 'Sotib olingan' : `<i class="fa-solid fa-coins"></i> ${p.price}`}
+                    </button>
+                `;
+                marketContainer.appendChild(card);
+            });
+
+            marketContainer.querySelectorAll('.market-buy-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    const res = db.buyPlayerPack(id);
+                    alert(res.msg);
+                    this.renderDashboard();
+                });
+            });
+        }
+
+        // Render achievements
+        const achContainer = document.getElementById('achievements-list');
+        if (achContainer) {
+            achContainer.innerHTML = '';
+            db.state.achievements.forEach(ach => {
+                let progressHtml = '';
+                if (ach.target !== undefined) {
+                    const pct = Math.min(100, Math.floor((ach.current / ach.target) * 100));
+                    progressHtml = `
+                        <div class="ach-progress-bar-container">
+                            <div class="ach-progress-bar-fill" style="width: ${pct}%"></div>
+                        </div>
+                        <span style="font-size:0.75rem; color:var(--text-sub)">${ach.current} / ${ach.target} gol</span>
+                    `;
+                }
+                const item = document.createElement('div');
+                item.className = `achievement-item ${ach.completed ? 'completed' : ''}`;
+                item.innerHTML = `
+                    <div class="ach-item-left">
+                        <div class="ach-title">
+                            <i class="fa-solid ${ach.completed ? 'fa-circle-check text-primary' : 'fa-circle-dot text-sub'}"></i>
+                            ${ach.title}
+                        </div>
+                        <div class="ach-desc">${ach.desc}</div>
+                        ${progressHtml}
+                    </div>
+                    <div class="ach-reward-badge">
+                        <i class="fa-solid fa-coins"></i> +${ach.reward} Tanga
+                    </div>
+                `;
+                achContainer.appendChild(item);
+            });
+        }
+    }
+
+    openSwapModal(role) {
+        document.getElementById('swap-role-label').innerText = role;
+        const optionsGrid = document.getElementById('swap-options-grid');
+        if (!optionsGrid) return;
+        optionsGrid.innerHTML = '';
+
+        const db = window.gameDb;
+        db.state.ownedPlayers.forEach(id => {
+            const p = db.getPlayer(id);
+            if (!p) return;
+            const opt = document.createElement('div');
+            opt.className = 'player-list-card';
+            opt.innerHTML = `
+                <div class="player-card-info-left">
+                    <span class="card-rating-badge">${p.rating}</span>
+                    <div>
+                        <div class="card-name-title">${p.country} ${p.name}</div>
+                        <div class="card-role-title">${p.role}</div>
+                    </div>
+                </div>
+                <button class="glow-btn" style="width:auto; padding:6px 12px; font-size:0.8rem; margin:0;" data-id="${p.id}">TANLASH</button>
+            `;
+            
+            opt.querySelector('button').addEventListener('click', (e) => {
+                const pId = e.currentTarget.dataset.id;
+                const res = db.assignSquadPlayer(role, pId);
+                alert(res.msg);
+                document.getElementById('player-swap-modal').classList.add('hidden');
+                this.renderDashboard();
+                this.buildPlayers();
+            });
+            
+            optionsGrid.appendChild(opt);
+        });
+
+        document.getElementById('player-swap-modal').classList.remove('hidden');
+    }
+
+    addCommentary(msg) {
+        const textEl = document.getElementById('commentary-text');
+        if (textEl) {
+            textEl.innerText = msg;
+            const banner = document.getElementById('commentary-banner');
+            if (banner) {
+                banner.style.opacity = '1';
+                banner.style.filter = 'drop-shadow(0 0 10px rgba(0, 195, 255, 0.4))';
+                setTimeout(() => {
+                    banner.style.filter = 'none';
+                }, 400);
+            }
+        }
+    }
+
+    startReplaySequence(isHome) {
+        this.isPlaying = false;
+        
+        const replayTape = document.getElementById('replay-tape-banner');
+        if (replayTape) replayTape.classList.remove('hidden');
+
+        const goalBallPos = this.ball.position.clone();
+        let replayFrame = 0;
+        const maxReplayFrames = 150; 
+
+        this.replayInterval = setInterval(() => {
+            replayFrame++;
+            const t = replayFrame / maxReplayFrames;
+
+            const camStart = new THREE.Vector3(-12, 4.5, isHome ? 32 : -32);
+            const camEnd = new THREE.Vector3(0, 2.0, isHome ? 54.5 : -54.5);
+            this.camera.position.lerpVectors(camStart, camEnd, t * 0.85);
+            this.camera.lookAt(goalBallPos);
+
+            this.ball.rotation.x += 0.05;
+
+            if (replayFrame >= maxReplayFrames) {
+                clearInterval(this.replayInterval);
+                
+                if (replayTape) replayTape.classList.add('hidden');
+                const overlay = document.getElementById('goal-announcement');
+                if (overlay) overlay.classList.add('hidden');
+
+                this.resetBall();
+                this.isPlaying = true;
+            }
+        }, 16); 
     }
 
     loadLeaderboard() {
