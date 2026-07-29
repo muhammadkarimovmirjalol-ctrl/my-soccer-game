@@ -26,19 +26,46 @@
         </div>
     </div>
 
-    <!-- First Time Profile Setup Modal -->
+    <!-- Onboarding 4-Step Profile Setup Wizard -->
     <div id="profile-setup-modal" class="overlay-screen hidden">
-        <div class="modal-card profile-setup-card">
-            <h2><i class="fa-solid fa-user-gear text-primary"></i> YANGI KLUB PROFILI</h2>
-            <p>Klubingiz nomini kiriting va mamlakat bayrog'ini tanlang!</p>
-            
-            <div class="input-group">
-                <label for="setup-club-name">Klub nomi:</label>
-                <input type="text" id="setup-club-name" placeholder="Toshkent Yulduzlari FK" value="Yulduzlar FK" maxlength="22">
+        <div class="modal-card onboarding-wizard-card">
+            <!-- Wizard Steps Progress indicator -->
+            <div class="wizard-steps-header">
+                <span class="step-indicator active" data-step="1">1</span>
+                <span class="step-indicator" data-step="2">2</span>
+                <span class="step-indicator" data-step="3">3</span>
+                <span class="step-indicator" data-step="4">4</span>
             </div>
 
-            <div class="input-group">
-                <label>Mamlakat bayrog'i:</label>
+            <!-- STEP 1: Nickname -->
+            <div class="wizard-step-content active-step" id="wizard-step-1">
+                <h2><i class="fa-solid fa-signature text-primary"></i> ISM TANLASH</h2>
+                <p>O'yindagi kapitanlik ismingizni yoki taxallusingizni kiriting:</p>
+                <div class="input-group">
+                    <input type="text" id="setup-nickname" placeholder="Kapitan" value="Kapitan" maxlength="15">
+                </div>
+                <button class="glow-btn next-step-btn" data-next="2">DAVOM ETISH <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <!-- STEP 2: Avatar selection -->
+            <div class="wizard-step-content" id="wizard-step-2">
+                <h2><i class="fa-solid fa-circle-user text-primary"></i> AVATAR TANLASH</h2>
+                <p>Profil rasmi uchun qahramon ko'rinishini tanlang:</p>
+                <div class="avatars-setup-grid">
+                    <div class="avatar-item active" data-avatar="👨‍✈️">👨‍✈️ Kapitan</div>
+                    <div class="avatar-item" data-avatar="⚡">⚡ Tezkor</div>
+                    <div class="avatar-item" data-avatar="🔥">🔥 Alanga</div>
+                    <div class="avatar-item" data-avatar="⚽">⚽ Futbolchi</div>
+                    <div class="avatar-item" data-avatar="🦁">🦁 Sher</div>
+                    <div class="avatar-item" data-avatar="👑">👑 Qirol</div>
+                </div>
+                <button class="glow-btn next-step-btn" data-next="3">DAVOM ETISH <i class="fa-solid fa-arrow-right"></i></button>
+            </div>
+
+            <!-- STEP 3: Country Selection -->
+            <div class="wizard-step-content" id="wizard-step-3">
+                <h2><i class="fa-solid fa-earth-central-asia text-primary"></i> MAMLAKAT</h2>
+                <p>Qaysi mamlakat terma jamoasi bayrog'i ostida o'ynamoqchisiz:</p>
                 <div class="flags-setup-grid" id="setup-flags-grid">
                     <span class="flag-setup-item active" data-code="UZB" data-flag="🇺🇿">🇺🇿 UZB</span>
                     <span class="flag-setup-item" data-code="POR" data-flag="🇵🇹">🇵🇹 POR</span>
@@ -56,9 +83,42 @@
                     <span class="flag-setup-item" data-code="KOR" data-flag="🇰🇷">🇰🇷 KOR</span>
                     <span class="flag-setup-item" data-code="MAR" data-flag="🇲🇦">🇲🇦 MAR</span>
                 </div>
+                <button class="glow-btn next-step-btn" data-next="4">DAVOM ETISH <i class="fa-solid fa-arrow-right"></i></button>
             </div>
 
-            <button id="save-profile-btn" class="glow-btn">PROFILNI YARATISH 🚀</button>
+            <!-- STEP 4: Starter pack opening -->
+            <div class="wizard-step-content" id="wizard-step-4">
+                <h2><i class="fa-solid fa-box-open text-primary"></i> STARTER PACK</h2>
+                <p>Siz uchun boshlang'ich sovg'a paketi tayyor! Oching va o'yinchilarni tarkibga qo'shing:</p>
+                <div class="starter-pack-box" id="starter-pack-box">
+                    <i class="fa-solid fa-cube pack-gift-icon animate-bounce"></i>
+                    <button id="open-pack-btn" class="glow-btn">SOVG'ANI OCHISH 🎁</button>
+                </div>
+                <div class="pack-rewards-result hidden" id="pack-rewards-result">
+                    <div class="rewards-inner">
+                        <h3>MUKOFOTLAR:</h3>
+                        <div class="reward-items-flex">
+                            <span class="badge-coin"><i class="fa-solid fa-coins text-gold"></i> +1200 Coins</span>
+                            <span class="badge-card"><i class="fa-solid fa-shirt"></i> 5 ta Futbolchi</span>
+                        </div>
+                    </div>
+                    <button id="finish-onboarding-btn" class="glow-btn" style="margin-top:15px">TARKIBGA QO'SHISH & CHIQISH 🚀</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Interactive "Hero Penalty" Kickoff Overlay -->
+    <div id="hero-penalty-overlay" class="hero-penalty-container hidden">
+        <div class="penalty-instructions">
+            <h2><i class="fa-solid fa-circle-dot blinking-dot"></i> PENALTI SERIYASI</h2>
+            <p>Darvozaning chap yoki o'ng nuqtasini tanlab to'pni teping va GOL uring!</p>
+        </div>
+        
+        <!-- Interactive target hot-spots placed on left/right net area -->
+        <div class="penalty-targets-wrapper">
+            <button id="penalty-target-left" class="penalty-target-btn"><i class="fa-solid fa-crosshairs"></i></button>
+            <button id="penalty-target-right" class="penalty-target-btn"><i class="fa-solid fa-crosshairs"></i></button>
         </div>
     </div>
 
@@ -69,8 +129,16 @@
                 <i class="fa-solid fa-futbol gold-trophy"></i>
                 <span>FC MOBILE 3D</span>
             </div>
+            
+            <!-- User level and XP progress -->
+            <div class="profile-level-badge-container">
+                <span class="level-label" id="profile-level-val">LVL 1</span>
+                <div class="xp-progress-bar-bg"><div id="profile-xp-fill" class="xp-progress-fill"></div></div>
+            </div>
+
             <!-- Club Info Display Header Widget -->
             <div class="club-info-widget">
+                <span id="club-avatar-label">👨‍✈️</span>
                 <span id="club-flag-label" class="widget-flag">🇺🇿</span>
                 <span id="club-name-label" class="widget-name">Yulduzlar FK</span>
                 <span class="widget-coins"><i class="fa-solid fa-coins text-gold"></i> <span id="club-coins-val">1200</span></span>
@@ -82,11 +150,12 @@
             <button class="menu-tab-btn active" data-tab="play-tab"><i class="fa-solid fa-play"></i> O'YIN</button>
             <button class="menu-tab-btn" data-tab="squad-tab"><i class="fa-solid fa-shirt"></i> TARKIB</button>
             <button class="menu-tab-btn" data-tab="market-tab"><i class="fa-solid fa-shop"></i> BOZOR</button>
-            <button class="menu-tab-btn" data-tab="achievements-tab"><i class="fa-solid fa-award"></i> SOVRINLAR</button>
+            <button class="menu-tab-btn" data-tab="quests-tab"><i class="fa-solid fa-list-check"></i> VAZIFALAR</button>
+            <button class="menu-tab-btn" data-tab="season-pass-tab"><i class="fa-solid fa-crown"></i> PASS</button>
         </div>
 
         <div class="menu-body">
-            <!-- TAB 1: PLAY (Main Selection Mode Screen) -->
+            <!-- TAB 1: PLAY -->
             <div id="play-tab" class="tab-content active-tab">
                 <div class="hero-card">
                     <h2>MATCH DAY</h2>
@@ -121,7 +190,7 @@
                             </div>
                         </div>
 
-                        <!-- Training Drills Selector (Conditionally shown) -->
+                        <!-- Training Drills Selector -->
                         <div class="selection-section hidden" id="drills-section">
                             <label><i class="fa-solid fa-list-check"></i> Mashg'ulot turi:</label>
                             <div class="drills-grid">
@@ -144,20 +213,25 @@
                             <div><span>O'yinlar:</span> <span id="stats-games-played" class="text-white font-bold">0</span></div>
                             <div><span>G'alabalar:</span> <span id="stats-games-won" class="text-green font-bold">0</span></div>
                             <div><span>Mag'lubiyat:</span> <span id="stats-games-lost" class="text-red font-bold">0</span></div>
-                            <div><span>Trofiylar:</span> <span id="stats-trophies" class="text-gold font-bold">0</span></div>
+                            <div><span>XP:</span> <span id="stats-trophies" class="text-gold font-bold">0</span></div>
                         </div>
                     </div>
 
-                    <div class="panel-card leaderboard-card">
-                        <h3><i class="fa-solid fa-ranking-star"></i> GLOBAL LEADERBOARD</h3>
-                        <div class="leaderboard-list" id="leaderboard-list">
-                            <div class="loading-leaderboard">Yuklanmoqda...</div>
+                    <!-- Fictional Lobby Chat widget -->
+                    <div class="panel-card chat-lobby-card">
+                        <h3><i class="fa-solid fa-comments text-primary"></i> LOBBY CHAT (JONLI)</h3>
+                        <div class="chat-lobby-messages-list" id="chat-messages-container">
+                            <!-- Messages -->
+                        </div>
+                        <div class="chat-input-row">
+                            <input type="text" id="chat-message-input" placeholder="Xabar yozing..." maxlength="40">
+                            <button id="chat-send-btn"><i class="fa-solid fa-paper-plane"></i></button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB 2: SQUAD EDITOR (Tactical Formation Pitch) -->
+            <!-- TAB 2: SQUAD EDITOR -->
             <div id="squad-tab" class="tab-content">
                 <div class="squad-layout-container">
                     <div class="pitch-container-wrapper">
@@ -172,10 +246,6 @@
                         
                         <!-- 2D Mini Tactical Field Grid -->
                         <div class="tactical-field-grid">
-                            <!-- Field grass layout stripes are CSS backgrounds -->
-                            <div class="field-stripe-row"></div>
-                            
-                            <!-- Tactical slots -->
                             <div class="field-player-slot slot-fw" data-role="FW">
                                 <div class="player-slot-badge"><i class="fa-solid fa-person-running"></i> FW</div>
                                 <span class="slot-player-name">FW Name</span>
@@ -214,7 +284,7 @@
                     <!-- Squad Roster List Panel -->
                     <div class="roster-panel-card">
                         <h3><i class="fa-solid fa-shirt text-primary"></i> KLUB A'ZOLARI</h3>
-                        <p class="panel-tip">Pozitsiyadagi o'yinchini almashtirish uchun maydondagi slotni yoki o'yinchi kartasini bosing.</p>
+                        <p class="panel-tip">O'yinchini almashtirish uchun maydondagi slotni bosing.</p>
                         <div class="squad-roster-list" id="owned-roster-list">
                             <!-- Dynamically loaded player cards -->
                         </div>
@@ -222,7 +292,7 @@
                 </div>
             </div>
 
-            <!-- TAB 3: TRANSFER MARKET (Buy Card Packs) -->
+            <!-- TAB 3: TRANSFER MARKET -->
             <div id="market-tab" class="tab-content">
                 <div class="market-container">
                     <div class="market-header">
@@ -235,13 +305,32 @@
                 </div>
             </div>
 
-            <!-- TAB 4: ACHIEVEMENTS & QUESTS -->
-            <div id="achievements-tab" class="tab-content">
+            <!-- TAB 4: QUESTS & ACHIEVEMENTS -->
+            <div id="quests-tab" class="tab-content">
                 <div class="achievements-container">
-                    <h2>MUKOFOTLAR VA VAZIFALAR</h2>
-                    <p>Kunlik topshiriqlarni bajaring va jamoa byudjeti uchun bepul tangalarga ega bo'ling!</p>
-                    <div class="achievements-list-wrapper" id="achievements-list">
-                        <!-- Items list -->
+                    <h2>KUNLIK VAZIFALAR VA SOVRINLAR</h2>
+                    <p>Muntazam yangilanadigan vazifalarni bajarib darajangizni (XP) oshiring!</p>
+                    <div class="achievements-list-wrapper" id="quests-list-container">
+                        <!-- Quests grid -->
+                    </div>
+                    <div class="achievements-list-wrapper" style="margin-top:25px" id="achievements-list">
+                        <!-- Achievements grid -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 5: SEASON PASS SYSTEM -->
+            <div id="season-pass-tab" class="tab-content">
+                <div class="season-pass-container">
+                    <h2>CHAMPIONS SEASON PASS</h2>
+                    <p>Matchlarda g'alaba qozonib XP yig'ing va premium mukofotlarni oching!</p>
+                    
+                    <div class="season-pass-hud">
+                        <span class="total-xp-counter"><i class="fa-solid fa-star"></i> JAMI XP: <span id="pass-xp-counter">0</span></span>
+                    </div>
+
+                    <div class="season-pass-tiers-grid" id="season-pass-grid">
+                        <!-- Dynamic tiers listing -->
                     </div>
                 </div>
             </div>

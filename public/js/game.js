@@ -235,8 +235,14 @@ class UltraFootballMatch {
         if (this.introTime >= 3.8) {
             this.introRunning = false;
             document.getElementById('loading-screen').classList.add('hidden');
-            document.getElementById('main-menu').classList.remove('hidden');
             this.resetBall();
+            
+            if (!localStorage.getItem('fc_mobile_3d_profile_configured')) {
+                document.getElementById('profile-setup-modal').classList.remove('hidden');
+            } else {
+                document.getElementById('main-menu').classList.remove('hidden');
+                this.renderDashboard();
+            }
         }
     }
 
@@ -847,6 +853,10 @@ class UltraFootballMatch {
 
         if (this.introRunning) {
             this.updateIntro(dt);
+            this.updateWeatherParticles();
+        }
+        else if (this.penaltyModeActive) {
+            this.updateHeroPenalty(dt);
             this.updateWeatherParticles();
         }
         else if (this.isPlaying) {
@@ -1508,45 +1518,151 @@ class UltraFootballMatch {
             });
         });
 
-        // Profile Setup Modal flag selection
+        // --- ONBOARDING WIZARD NAVIGATION ---
+        document.querySelectorAll('.next-step-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const nextStep = e.currentTarget.dataset.next;
+                
+                if (nextStep === '2') {
+                    const nick = document.getElementById('setup-nickname').value.trim() || 'Kapitan';
+                    window.gameDb.state.profile.nickname = nick;
+                    window.gameDb.save();
+                }
+
+                document.querySelectorAll('.wizard-step-content').forEach(w => w.classList.remove('active-step'));
+                document.getElementById(`wizard-step-${nextStep}`).classList.add('active-step');
+
+                document.querySelectorAll('.step-indicator').forEach(ind => {
+                    const stepNum = parseInt(ind.dataset.step);
+                    if (stepNum < parseInt(nextStep)) {
+                        ind.classList.add('completed');
+                        ind.classList.remove('active');
+                    } else if (stepNum === parseInt(nextStep)) {
+                        ind.classList.add('active');
+                        ind.classList.remove('completed');
+                    } else {
+                        ind.classList.remove('active', 'completed');
+                    }
+                });
+            });
+        });
+
+        // Avatar selection
+        document.querySelectorAll('.avatar-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                document.querySelectorAll('.avatar-item').forEach(i => i.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                const avatar = e.currentTarget.dataset.avatar;
+                window.gameDb.state.profile.avatar = avatar;
+                window.gameDb.save();
+                
+                const avatarLabel = document.getElementById('club-avatar-label');
+                if (avatarLabel) avatarLabel.innerText = avatar;
+            });
+        });
+
+        // Country selection
         document.querySelectorAll('.flag-setup-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 document.querySelectorAll('.flag-setup-item').forEach(i => i.classList.remove('active'));
                 e.currentTarget.classList.add('active');
-            });
-        });
-
-        // Profile Setup Modal color selection
-        document.querySelectorAll('.color-dot').forEach(dot => {
-            dot.addEventListener('click', (e) => {
-                document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
-                e.currentTarget.classList.add('active');
-            });
-        });
-
-        // Save Profile button
-        const saveProfBtn = document.getElementById('save-profile-btn');
-        if (saveProfBtn) {
-            saveProfBtn.addEventListener('click', () => {
-                const nameInput = document.getElementById('setup-club-name').value.trim() || 'Yulduzlar FK';
-                const activeFlag = document.querySelector('.flag-setup-item.active');
-                const activeColor = document.querySelector('.color-dot.active');
-
-                const flag = activeFlag ? activeFlag.dataset.flag : '🇺🇿';
-                const code = activeFlag ? activeFlag.dataset.code : 'UZB';
-                const colorHex = activeColor ? activeColor.dataset.color : '#00c3ff';
-
-                window.gameDb.state.profile.clubName = nameInput;
+                const flag = e.currentTarget.dataset.flag;
+                const code = e.currentTarget.dataset.code;
+                
                 window.gameDb.state.profile.country = flag;
                 window.gameDb.state.profile.countryCode = code;
-                window.gameDb.state.profile.logoColor = parseInt(colorHex.replace('#', '0x'));
-
+                
+                // Set default club names based on selected country
+                const countryClubs = window.gameDb.countriesDb[code]?.clubs || [];
+                if (countryClubs.length > 0) {
+                    window.gameDb.state.profile.clubName = countryClubs[0].name;
+                    window.gameDb.state.profile.logoColor = countryClubs[0].color;
+                }
                 window.gameDb.save();
-                localStorage.setItem('fc_mobile_3d_profile_configured', 'true');
+            });
+        });
 
+        // Open Starter pack button
+        const openPackBtn = document.getElementById('open-pack-btn');
+        if (openPackBtn) {
+            openPackBtn.addEventListener('click', () => {
+                document.getElementById('starter-pack-box').classList.add('hidden');
+                document.getElementById('pack-rewards-result').classList.remove('hidden');
+                
+                window.gameDb.state.profile.coins = 1200;
+                window.gameDb.state.ownedPlayers = ['gk_1', 'df_1', 'mf_5', 'fw_3', 'mf_1'];
+                window.gameDb.save();
+            });
+        }
+
+        // Finish onboarding button
+        const finishOnboardingBtn = document.getElementById('finish-onboarding-btn');
+        if (finishOnboardingBtn) {
+            finishOnboardingBtn.addEventListener('click', () => {
+                localStorage.setItem('fc_mobile_3d_profile_configured', 'true');
                 document.getElementById('profile-setup-modal').classList.add('hidden');
-                this.renderDashboard();
+                
                 this.buildPlayers();
+                this.startHeroPenaltyIntro();
+            });
+        }
+
+        // --- HERO PENALTY KICKOFF INTERACTIVE BUTTONS ---
+        const penaltyLeft = document.getElementById('penalty-target-left');
+        if (penaltyLeft) {
+            penaltyLeft.addEventListener('click', () => {
+                this.takePenaltyShot('left');
+            });
+        }
+
+        const penaltyRight = document.getElementById('penalty-target-right');
+        if (penaltyRight) {
+            penaltyRight.addEventListener('click', () => {
+                this.takePenaltyShot('right');
+            });
+        }
+
+        // --- LOBBY CHAT MESSAGE POSTING ---
+        const chatSend = document.getElementById('chat-send-btn');
+        const chatInput = document.getElementById('chat-message-input');
+        if (chatSend && chatInput) {
+            const sendMsg = () => {
+                const text = chatInput.value.trim();
+                if (!text) return;
+                
+                const profile = window.gameDb.state.profile;
+                window.gameDb.state.chatLogs.push({
+                    sender: profile.nickname,
+                    club: profile.clubName,
+                    flag: profile.country,
+                    text: text
+                });
+                chatInput.value = '';
+                window.gameDb.save();
+                this.renderDashboard();
+
+                // Simulated automated reply
+                setTimeout(() => {
+                    const randomReplies = [
+                        "Daxshatli fikr! 👍",
+                        "Jamoangiz juda kuchli ko'rindi!",
+                        "Transfer bozorida yangi o'yinchilar chiqdi, ko'rdingizmi?",
+                        "Hozirgina g'alaba qozondim! 🏆",
+                        "Kimda Eldor FW kartasi bor? Zarbalari daxshat!"
+                    ];
+                    window.gameDb.state.chatLogs.push({
+                        sender: "Pro_Gamer",
+                        club: "Madrid Rebels",
+                        flag: "🇪🇸",
+                        text: randomReplies[Math.floor(Math.random() * randomReplies.length)]
+                    });
+                    window.gameDb.save();
+                    this.renderDashboard();
+                }, 1800);
+            };
+            chatSend.addEventListener('click', sendMsg);
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') sendMsg();
             });
         }
 
@@ -1575,13 +1691,6 @@ class UltraFootballMatch {
             closeSwapBtn.addEventListener('click', () => {
                 document.getElementById('player-swap-modal').classList.add('hidden');
             });
-        }
-
-        // Check if first-time setup is needed
-        if (!localStorage.getItem('fc_mobile_3d_profile_configured')) {
-            document.getElementById('profile-setup-modal').classList.remove('hidden');
-        } else {
-            this.renderDashboard();
         }
 
         // Weather selections
@@ -1688,6 +1797,18 @@ class UltraFootballMatch {
         if (flagLabel) flagLabel.innerText = profile.country;
         const nameLabel = document.getElementById('club-name-label');
         if (nameLabel) nameLabel.innerText = profile.clubName;
+        const avatarLabel = document.getElementById('club-avatar-label');
+        if (avatarLabel && profile.avatar) avatarLabel.innerText = profile.avatar;
+
+        // Level badge and progress
+        const lvlVal = document.getElementById('profile-level-val');
+        if (lvlVal) lvlVal.innerText = `LVL ${profile.level}`;
+        const xpFill = document.getElementById('profile-xp-fill');
+        if (xpFill) {
+            const nextLvlThreshold = profile.level * 1000;
+            const pct = Math.min(100, Math.floor((profile.xp / nextLvlThreshold) * 100));
+            xpFill.style.width = `${pct}%`;
+        }
 
         // Stats card display
         const gpVal = document.getElementById('stats-games-played');
@@ -1697,7 +1818,7 @@ class UltraFootballMatch {
         const glVal = document.getElementById('stats-games-lost');
         if (glVal) glVal.innerText = profile.losses;
         const gtVal = document.getElementById('stats-trophies');
-        if (gtVal) gtVal.innerText = profile.trophies;
+        if (gtVal) gtVal.innerText = profile.xp; // use XP as overall ranking indicator!
 
         // Render active squad on tactical pitch
         const squad = db.getActiveSquadPlayers();
@@ -1810,6 +1931,110 @@ class UltraFootballMatch {
                     alert(res.msg);
                     this.renderDashboard();
                 });
+            });
+        }
+
+        // Render Season Pass tiers
+        const passContainer = document.getElementById('season-pass-grid');
+        if (passContainer) {
+            passContainer.innerHTML = '';
+            
+            const passTiers = [
+                { idx: 1, req: 0, title: "Boshlang'ich Tanga", coins: 300, cardId: null },
+                { idx: 2, req: 500, title: "200 Tanga + Ramos (DF)", coins: 200, cardId: "df_2" },
+                { idx: 3, req: 1200, title: "De Bruyne (MF)", coins: 0, cardId: "mf_4" },
+                { idx: 4, req: 2000, title: "500 Tanga + Buffo (GK)", coins: 500, cardId: "gk_2" },
+                { idx: 5, req: 3000, title: "L. Messi (FW) Legend", coins: 1000, cardId: "fw_2" }
+            ];
+
+            const passXpCounter = document.getElementById('pass-xp-counter');
+            if (passXpCounter) passXpCounter.innerText = db.state.seasonPass.xpProgress;
+
+            passTiers.forEach(tier => {
+                const isClaimed = db.state.seasonPass.claimedTiers.includes(tier.idx);
+                const isUnlocked = db.state.seasonPass.xpProgress >= tier.req;
+                
+                const row = document.createElement('div');
+                row.className = `season-pass-tier-row ${isUnlocked ? 'unlocked' : ''}`;
+                row.innerHTML = `
+                    <div class="tier-info-left">
+                        <div class="tier-number-badge">${tier.idx}</div>
+                        <div>
+                            <div class="tier-reward-title">${tier.title}</div>
+                            <div class="tier-req-xp">Talab etiladi: ${tier.req} XP</div>
+                        </div>
+                    </div>
+                    <button class="claim-tier-btn ${isClaimed ? 'claimed' : ''}" data-idx="${tier.idx}" data-req="${tier.req}" data-coins="${tier.coins}" data-card="${tier.cardId || ''}" ${isClaimed || !isUnlocked ? 'disabled' : ''}>
+                        ${isClaimed ? 'OLINGAN' : isUnlocked ? 'OLISH 🎁' : 'YOPIN'}
+                    </button>
+                `;
+                
+                row.querySelector('button').addEventListener('click', (e) => {
+                    const t = e.currentTarget;
+                    const res = db.claimSeasonPassTier(
+                        parseInt(t.dataset.idx),
+                        parseInt(t.dataset.req),
+                        parseInt(t.dataset.coins),
+                        t.dataset.card || null
+                    );
+                    alert(res.msg);
+                    this.renderDashboard();
+                });
+
+                passContainer.appendChild(row);
+            });
+        }
+
+        // Render Chat Lobby list
+        const chatContainer = document.getElementById('chat-messages-container');
+        if (chatContainer) {
+            chatContainer.innerHTML = '';
+            db.state.chatLogs.forEach(msg => {
+                const row = document.createElement('div');
+                row.className = 'chat-message-row';
+                row.innerHTML = `
+                    <div class="chat-sender-header">
+                        <span>${msg.flag}</span>
+                        <span>${msg.sender}</span>
+                        <span class="chat-sender-club">[${msg.club}]</span>
+                    </div>
+                    <div class="chat-msg-text" style="color: #fff; margin-top:2px">${msg.text}</div>
+                `;
+                chatContainer.appendChild(row);
+            });
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Render Daily Quests
+        const questsContainer = document.getElementById('quests-list-container');
+        if (questsContainer) {
+            questsContainer.innerHTML = '';
+            db.state.quests.forEach(q => {
+                const item = document.createElement('div');
+                item.className = `achievement-item ${q.completed ? 'completed' : ''}`;
+                item.innerHTML = `
+                    <div class="ach-item-left">
+                        <div class="ach-title">
+                            <i class="fa-solid ${q.completed ? 'fa-circle-check text-primary' : 'fa-circle-dot text-sub'}"></i>
+                            ${q.title}
+                        </div>
+                        <div class="ach-desc">${q.desc}</div>
+                    </div>
+                    <button class="claim-tier-btn" data-id="${q.id}" ${q.completed ? 'disabled style="opacity:0.5"' : ''}>
+                        ${q.completed ? 'BAJARILDI' : `OLISH (+${q.reward} T)`}
+                    </button>
+                `;
+
+                if (!q.completed) {
+                    item.querySelector('button').addEventListener('click', (e) => {
+                        const id = e.currentTarget.dataset.id;
+                        const res = db.completeQuest(id);
+                        alert(res.msg);
+                        this.renderDashboard();
+                    });
+                }
+
+                questsContainer.appendChild(item);
             });
         }
 
@@ -2230,6 +2455,123 @@ class UltraFootballMatch {
                 p.userData.rightLegGroup.rotation.x = THREE.MathUtils.lerp(p.userData.rightLegGroup.rotation.x, 0, 0.15);
             }
         });
+    }
+
+    startHeroPenaltyIntro() {
+        this.introRunning = false;
+        this.penaltyModeActive = true;
+        this.penaltyShotTaken = false;
+        this.penaltyGoalScored = false;
+
+        // Position camera behind the penalty spot looking at the net
+        this.camera.position.set(0, 3.8, 25);
+        this.camera.lookAt(0, 1.8, 55);
+
+        // Position player and ball
+        if (this.homeTeamPlayers && this.homeTeamPlayers.length >= 5) {
+            const fw = this.homeTeamPlayers[3];
+            fw.position.set(0, 0, 31);
+            fw.rotation.set(0, 0, 0);
+            this.homeTeamPlayers.forEach(p => {
+                if (p !== fw) p.position.set(0, -50, 0);
+            });
+        }
+        
+        const gkOpponent = this.awayTeamPlayers[0];
+        if (gkOpponent) {
+            gkOpponent.position.set(0, 0, 54.5);
+            gkOpponent.rotation.set(0, 0, 0);
+            this.awayTeamPlayers.forEach(p => {
+                if (p !== gkOpponent) p.position.set(0, -50, 0);
+            });
+        }
+
+        this.ball.position.set(0, this.ballRadius, 36.5);
+        this.ballVelocity.set(0, 0, 0);
+
+        document.getElementById('hero-penalty-overlay').classList.remove('hidden');
+    }
+
+    takePenaltyShot(direction) {
+        if (this.penaltyShotTaken) return;
+        this.penaltyShotTaken = true;
+        this.penaltyShootDir = direction;
+
+        gameAudio.playKick();
+
+        // Target coordinates
+        if (direction === 'left') {
+            this.ballVelocity.set(-2.8, 3.5, 23.0);
+        } else {
+            this.ballVelocity.set(2.8, 3.5, 23.0);
+        }
+
+        // Hide overlay buttons immediately
+        const overlayBtns = document.querySelectorAll('.penalty-target-btn');
+        overlayBtns.forEach(btn => btn.style.display = 'none');
+    }
+
+    updateHeroPenalty(dt) {
+        if (!this.penaltyShotTaken) return;
+
+        // Apply physics to ball
+        this.ball.position.addScaledVector(this.ballVelocity, dt);
+        if (this.ball.position.y > this.ballRadius) {
+            this.ballVelocity.y -= 9.81 * dt;
+        } else {
+            this.ball.position.y = this.ballRadius;
+            this.ballVelocity.y = -this.ballVelocity.y * 0.4;
+        }
+
+        // Animate keeper dive opposite to target
+        const gkOpponent = this.awayTeamPlayers[0];
+        if (gkOpponent) {
+            if (this.penaltyShootDir === 'left') {
+                // Dive right (positive X)
+                gkOpponent.position.x += 3.8 * dt;
+                gkOpponent.position.y = Math.max(0, gkOpponent.position.y + 1.8 * dt);
+                gkOpponent.rotation.z -= 0.6 * dt;
+            } else {
+                // Dive left (negative X)
+                gkOpponent.position.x -= 3.8 * dt;
+                gkOpponent.position.y = Math.max(0, gkOpponent.position.y + 1.8 * dt);
+                gkOpponent.rotation.z += 0.6 * dt;
+            }
+        }
+
+        // Check for goal
+        if (this.ball.position.z >= 54.5 && !this.penaltyGoalScored) {
+            this.penaltyGoalScored = true;
+            this.ballVelocity.set(0, 0, 0); // Stop ball in net
+            
+            gameAudio.playGoalSound();
+            if (window.confetti) window.confetti({ particleCount: 150, spread: 80 });
+
+            const overlay = document.getElementById('goal-announcement');
+            if (overlay) overlay.classList.remove('hidden');
+
+            // Render slow motion camera sweep
+            let frameCount = 0;
+            const interval = setInterval(() => {
+                frameCount++;
+                this.camera.position.lerp(new THREE.Vector3(0, 2.0, 56.5), 0.05);
+                this.camera.lookAt(this.ball.position);
+                
+                if (frameCount >= 120) {
+                    clearInterval(interval);
+                    
+                    if (overlay) overlay.classList.add('hidden');
+                    document.getElementById('hero-penalty-overlay').classList.add('hidden');
+                    
+                    this.penaltyModeActive = false;
+                    
+                    // Show main dashboard!
+                    document.getElementById('main-menu').classList.remove('hidden');
+                    this.renderDashboard();
+                    this.resetBall();
+                }
+            }, 16);
+        }
     }
 }
 
