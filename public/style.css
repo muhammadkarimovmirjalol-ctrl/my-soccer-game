@@ -1804,4 +1804,27 @@ body, html {
     cursor: default;
 }
 
+.sound-toggle-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    transition: all 0.25s ease;
+    margin-left: 5px;
+}
+
+.sound-toggle-btn:hover {
+    background: var(--primary);
+    color: #000;
+    border-color: var(--primary);
+    transform: scale(1.08);
+}
+
 

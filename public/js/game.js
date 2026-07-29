@@ -8,6 +8,7 @@
 class AudioSynth {
     constructor() {
         this.ctx = null;
+        this.muted = false;
     }
 
     init() {
@@ -16,9 +17,14 @@ class AudioSynth {
         }
     }
 
+    toggleMute() {
+        this.muted = !this.muted;
+        return this.muted;
+    }
+
     playWhistle() {
         this.init();
-        if (!this.ctx) return;
+        if (this.muted || !this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -41,7 +47,7 @@ class AudioSynth {
 
     playKick() {
         this.init();
-        if (!this.ctx) return;
+        if (this.muted || !this.ctx) return;
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
@@ -62,7 +68,7 @@ class AudioSynth {
 
     playGoalSound() {
         this.init();
-        if (!this.ctx) return;
+        if (this.muted || !this.ctx) return;
         const bufferSize = this.ctx.sampleRate * 1.5;
         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
         const data = buffer.getChannelData(0);
@@ -1794,6 +1800,16 @@ class UltraFootballMatch {
             document.getElementById('main-menu').classList.remove('hidden');
             this.renderDashboard();
         });
+
+        const toggleSoundBtn = document.getElementById('btn-toggle-sound');
+        if (toggleSoundBtn) {
+            toggleSoundBtn.addEventListener('click', () => {
+                const isMuted = gameAudio.toggleMute();
+                toggleSoundBtn.innerHTML = isMuted 
+                    ? '<i class="fa-solid fa-volume-xmark"></i>' 
+                    : '<i class="fa-solid fa-volume-high"></i>';
+            });
+        }
     }
 
     renderDashboard() {
