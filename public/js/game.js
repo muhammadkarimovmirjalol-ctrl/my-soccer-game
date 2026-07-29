@@ -828,7 +828,6 @@ class UltraFootballMatch {
 
         if (this.introRunning) {
             this.updateIntro(dt);
-            this.updateBallPhysics(dt);
             this.updateWeatherParticles();
         }
         else if (this.isPlaying) {
