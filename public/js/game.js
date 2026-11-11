@@ -1234,6 +1234,12 @@ class UltraFootballMatch {
             // Record stats in local database
             window.gameDb.updateStats(this.homeScore > this.awayScore);
             window.gameDb.incrementGoals(this.homeScore);
+            window.gameDb.simLeagueRound(this.homeScore, this.awayScore);
+            if (this.isTraining) {
+                window.gameDb.completeQuest('qst_1');
+            } else if (this.homeScore >= 2 && this.homeScore > this.awayScore) {
+                window.gameDb.completeQuest('qst_2');
+            }
         }
     }
 
@@ -1362,25 +1368,26 @@ class UltraFootballMatch {
         const db = window.gameDb;
         const profile = db.state.profile;
         const formation = profile.activeFormation;
+        const tacticShift = profile.tactic === 'attacking' ? -5 : (profile.tactic === 'defensive' ? 5 : 0);
 
         if (this.homeTeamPlayers && this.homeTeamPlayers.length >= 5) {
             this.homeTeamPlayers[0].position.set(0, 0, 48); // GK
             
             if (formation === '4-4-2') {
-                this.homeTeamPlayers[1].position.set(-6, 0, 25); // DF
-                this.homeTeamPlayers[2].position.set(-8, 0, 12); // MF
-                this.homeTeamPlayers[3].position.set(-3, 0, 2);  // FW
-                this.homeTeamPlayers[4].position.set(8, 0, 12);  // SUB (active second MF)
+                this.homeTeamPlayers[1].position.set(-6, 0, 25 + tacticShift); // DF
+                this.homeTeamPlayers[2].position.set(-8, 0, 12 + tacticShift); // MF
+                this.homeTeamPlayers[3].position.set(-3, 0, 2 + tacticShift);  // FW
+                this.homeTeamPlayers[4].position.set(8, 0, 12 + tacticShift);  // SUB (active second MF)
             } else if (formation === '3-5-2') {
-                this.homeTeamPlayers[1].position.set(0, 0, 25);  // DF
-                this.homeTeamPlayers[2].position.set(-8, 0, 10); // MF
-                this.homeTeamPlayers[3].position.set(-3, 0, 2);  // FW
-                this.homeTeamPlayers[4].position.set(8, 0, 10);  // SUB (active second MF)
+                this.homeTeamPlayers[1].position.set(0, 0, 25 + tacticShift);  // DF
+                this.homeTeamPlayers[2].position.set(-8, 0, 10 + tacticShift); // MF
+                this.homeTeamPlayers[3].position.set(-3, 0, 2 + tacticShift);  // FW
+                this.homeTeamPlayers[4].position.set(8, 0, 10 + tacticShift);  // SUB (active second MF)
             } else { // 4-3-3 (default)
-                this.homeTeamPlayers[1].position.set(0, 0, 25);  // DF
-                this.homeTeamPlayers[2].position.set(-8, 0, 12); // MF
-                this.homeTeamPlayers[3].position.set(0, 0, 2);   // FW
-                this.homeTeamPlayers[4].position.set(8, 0, 10);  // SUB (active second winger)
+                this.homeTeamPlayers[1].position.set(0, 0, 25 + tacticShift);  // DF
+                this.homeTeamPlayers[2].position.set(-8, 0, 12 + tacticShift); // MF
+                this.homeTeamPlayers[3].position.set(0, 0, 2 + tacticShift);   // FW
+                this.homeTeamPlayers[4].position.set(8, 0, 10 + tacticShift);  // SUB (active second winger)
             }
             this.activePlayer = this.homeTeamPlayers[3];
         }
@@ -1535,11 +1542,22 @@ class UltraFootballMatch {
         });
 
         // --- ONBOARDING WIZARD NAVIGATION ---
+        document.querySelectorAll('.lang-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                document.querySelectorAll('.lang-item').forEach(i => i.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                const lang = e.currentTarget.dataset.lang;
+                window.gameDb.state.profile.lang = lang;
+                window.gameDb.save();
+                this.applyLanguage(lang);
+            });
+        });
+
         document.querySelectorAll('.next-step-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const nextStep = e.currentTarget.dataset.next;
                 
-                if (nextStep === '2') {
+                if (nextStep === '3') {
                     const nick = document.getElementById('setup-nickname').value.trim() || 'Kapitan';
                     window.gameDb.state.profile.nickname = nick;
                     window.gameDb.save();
@@ -1564,7 +1582,7 @@ class UltraFootballMatch {
         });
 
         // Avatar selection
-        document.querySelectorAll('.avatar-item').forEach(item => {
+        document.querySelectorAll('.avatar-item:not(.lang-item)').forEach(item => {
             item.addEventListener('click', (e) => {
                 document.querySelectorAll('.avatar-item').forEach(i => i.classList.remove('active'));
                 e.currentTarget.classList.add('active');
@@ -1693,6 +1711,30 @@ class UltraFootballMatch {
             });
         });
 
+        // Tactic selections
+        document.querySelectorAll('.tactic-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tacStr = e.currentTarget.dataset.tactic;
+                window.gameDb.state.profile.tactic = tacStr;
+                window.gameDb.save();
+                this.renderDashboard();
+                this.resetBall();
+            });
+        });
+
+        // Scout Finder button
+        const sendScoutBtn = document.getElementById('send-scout-btn');
+        if (sendScoutBtn) {
+            sendScoutBtn.addEventListener('click', () => {
+                const res = window.gameDb.scoutRandomPlayer();
+                if (res.success && window.confetti) {
+                    window.confetti({ particleCount: 100, spread: 70 });
+                }
+                alert(res.msg);
+                this.renderDashboard();
+            });
+        }
+
         // 2D Tactical Pitch slot selections to open Swap Dialog
         document.querySelectorAll('.field-player-slot').forEach(slot => {
             slot.addEventListener('click', (e) => {
@@ -1810,11 +1852,67 @@ class UltraFootballMatch {
                     : '<i class="fa-solid fa-volume-high"></i>';
             });
         }
+
+        const toggleLangBtn = document.getElementById('btn-toggle-lang');
+        if (toggleLangBtn) {
+            toggleLangBtn.addEventListener('click', () => {
+                const curLang = window.gameDb.state.profile.lang || 'uz';
+                const nextLang = curLang === 'uz' ? 'en' : 'uz';
+                window.gameDb.state.profile.lang = nextLang;
+                window.gameDb.save();
+                this.renderDashboard();
+            });
+        }
+
+        // PWA Install App handler (Desktop & Mobile)
+        this.deferredInstallPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            this.deferredInstallPrompt = e;
+        });
+
+        const installBtn = document.getElementById('btn-install-app');
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (this.deferredInstallPrompt) {
+                    this.deferredInstallPrompt.prompt();
+                    await this.deferredInstallPrompt.userChoice;
+                    this.deferredInstallPrompt = null;
+                } else {
+                    const lang = window.gameDb.state.profile.lang || 'uz';
+                    alert(lang === 'en'
+                        ? "To install FC MOBILE 3D as an App:\n• On Computer (Chrome/Edge): Click the Install icon in the browser address bar.\n• On Phone: Tap 'Add to Home Screen' in browser menu!"
+                        : "FC MOBILE 3D ilovasini qurilmangizga o'rnatish:\n• Kompyuterda (Chrome/Edge): Brauzer manzil qatoridagi 'Install / O'rnatish' belgisini bosing.\n• Telefonda: Brauzer menyusidan 'Asosiy ekranga qo'shish (Add to Home Screen)' tugmasini bosing!");
+                }
+            });
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+    }
+
+    applyLanguage(lang) {
+        const langBtn = document.getElementById('btn-toggle-lang');
+        if (langBtn) langBtn.innerText = lang.toUpperCase();
+
+        const tabMap = {
+            'play-tab': lang === 'en' ? '<i class="fa-solid fa-play"></i> PLAY' : '<i class="fa-solid fa-play"></i> O\'YIN',
+            'squad-tab': lang === 'en' ? '<i class="fa-solid fa-shirt"></i> SQUAD' : '<i class="fa-solid fa-shirt"></i> TARKIB',
+            'market-tab': lang === 'en' ? '<i class="fa-solid fa-shop"></i> MARKET' : '<i class="fa-solid fa-shop"></i> BOZOR',
+            'quests-tab': lang === 'en' ? '<i class="fa-solid fa-list-check"></i> QUESTS' : '<i class="fa-solid fa-list-check"></i> VAZIFALAR',
+            'season-pass-tab': '<i class="fa-solid fa-crown"></i> PASS'
+        };
+        document.querySelectorAll('.menu-tab-btn').forEach(btn => {
+            const t = btn.dataset.tab;
+            if (tabMap[t]) btn.innerHTML = tabMap[t];
+        });
     }
 
     renderDashboard() {
         const db = window.gameDb;
         const profile = db.state.profile;
+        this.applyLanguage(profile.lang || 'uz');
 
         // Update top info displays
         const coinsVal = document.getElementById('club-coins-val');
@@ -1846,9 +1944,32 @@ class UltraFootballMatch {
         const gtVal = document.getElementById('stats-trophies');
         if (gtVal) gtVal.innerText = profile.xp; // use XP as overall ranking indicator!
 
+        // Render League Standings Table
+        const leagueRows = document.getElementById('league-table-rows');
+        if (leagueRows && db.state.leagueTable) {
+            leagueRows.innerHTML = '';
+            db.state.leagueTable.forEach((team, idx) => {
+                const isUser = team.club.includes('Yulduzlar FK') || team.club.includes('Siz');
+                const displayName = isUser ? `${profile.clubName} (Siz)` : team.club;
+                const row = document.createElement('div');
+                row.style.cssText = `display:grid; grid-template-columns:3fr 0.8fr 0.8fr 0.8fr 0.8fr 1.2fr; align-items:center; padding:5px 8px; border-radius:8px; text-align:center; background:${isUser ? 'rgba(2,248,123,0.16)' : 'rgba(255,255,255,0.03)'}; border:1px solid ${isUser ? 'var(--primary)' : 'transparent'}; font-weight:${isUser ? '800' : '500'};`;
+                row.innerHTML = `
+                    <span style="text-align:left; color:${isUser ? 'var(--primary)' : '#fff'}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">#${idx + 1} ${displayName}</span>
+                    <span>${team.gp}</span>
+                    <span style="color:#02f87b">${team.w}</span>
+                    <span style="color:#ffd32a">${team.d}</span>
+                    <span style="color:#ff4757">${team.l}</span>
+                    <span style="color:var(--gold); font-weight:900;">${team.pts}</span>
+                `;
+                leagueRows.appendChild(row);
+            });
+        }
+
         // Render active squad on tactical pitch
         const squad = db.getActiveSquadPlayers();
         const activeFormation = profile.activeFormation;
+        const activeTactic = profile.tactic || 'balanced';
+        const captainId = profile.captainId || 'fw_3';
 
         // Sync active formation button class
         document.querySelectorAll('.formation-btn').forEach(btn => {
@@ -1859,38 +1980,47 @@ class UltraFootballMatch {
             }
         });
 
+        // Sync active tactic button class
+        document.querySelectorAll('.tactic-btn').forEach(btn => {
+            if (btn.dataset.tactic === activeTactic) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
         const nameFw = document.querySelector('.slot-fw .slot-player-name');
         const ratFw = document.querySelector('.slot-fw .slot-player-rating');
         if (nameFw && ratFw) {
-            nameFw.innerText = squad.FW.name;
+            nameFw.innerText = `${squad.FW.id === captainId ? '👑 ' : ''}${squad.FW.name}`;
             ratFw.innerText = squad.FW.rating;
         }
 
         const nameMf = document.querySelector('.slot-mf .slot-player-name');
         const ratMf = document.querySelector('.slot-mf .slot-player-rating');
         if (nameMf && ratMf) {
-            nameMf.innerText = squad.MF.name;
+            nameMf.innerText = `${squad.MF.id === captainId ? '👑 ' : ''}${squad.MF.name}`;
             ratMf.innerText = squad.MF.rating;
         }
 
         const nameDf = document.querySelector('.slot-df .slot-player-name');
         const ratDf = document.querySelector('.slot-df .slot-player-rating');
         if (nameDf && ratDf) {
-            nameDf.innerText = squad.DF.name;
+            nameDf.innerText = `${squad.DF.id === captainId ? '👑 ' : ''}${squad.DF.name}`;
             ratDf.innerText = squad.DF.rating;
         }
 
         const nameGk = document.querySelector('.slot-gk .slot-player-name');
         const ratGk = document.querySelector('.slot-gk .slot-player-rating');
         if (nameGk && ratGk) {
-            nameGk.innerText = squad.GK.name;
+            nameGk.innerText = `${squad.GK.id === captainId ? '👑 ' : ''}${squad.GK.name}`;
             ratGk.innerText = squad.GK.rating;
         }
 
         const nameSub = document.querySelector('.slot-sub .slot-player-name');
         const ratSub = document.querySelector('.slot-sub .slot-player-rating');
         if (nameSub && ratSub) {
-            nameSub.innerText = squad.SUB.name;
+            nameSub.innerText = `${squad.SUB.id === captainId ? '👑 ' : ''}${squad.SUB.name}`;
             ratSub.innerText = squad.SUB.rating;
         }
 
@@ -1901,23 +2031,32 @@ class UltraFootballMatch {
             db.state.ownedPlayers.forEach(id => {
                 const p = db.getPlayer(id);
                 if (!p) return;
+                const isCap = (p.id === captainId);
                 const card = document.createElement('div');
                 card.className = 'player-list-card';
                 card.innerHTML = `
                     <div class="player-card-info-left">
                         <span class="card-rating-badge">${p.rating}</span>
                         <div>
-                            <div class="card-name-title">${p.country} ${p.name}</div>
+                            <div class="card-name-title">${p.country} ${p.name} ${isCap ? '<span style="color:var(--gold)">👑 (C)</span>' : ''}</div>
                             <div class="card-role-title">${p.role}</div>
                         </div>
                     </div>
-                    <div class="player-card-stats-right">
+                    <div class="player-card-stats-right" style="align-items:center;">
                         <span>PAC ${p.pac}</span>
                         <span>SHO ${p.sho}</span>
                         <span>PAS ${p.pas}</span>
-                        <span>DEF ${p.def}</span>
+                        <button class="captain-btn ${isCap ? 'is-captain' : ''}" data-id="${p.id}" title="Kapitan etib tayinlash">
+                            <i class="fa-solid fa-crown"></i> ${isCap ? 'SARDOR' : 'C'}
+                        </button>
                     </div>
                 `;
+                card.querySelector('.captain-btn').addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    db.state.profile.captainId = p.id;
+                    db.save();
+                    this.renderDashboard();
+                });
                 rosterContainer.appendChild(card);
             });
         }

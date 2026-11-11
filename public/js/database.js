@@ -185,6 +185,9 @@ class FootballDatabase {
                 if (parsed.profile.xp === undefined) parsed.profile.xp = 0;
                 if (parsed.profile.coins === undefined) parsed.profile.coins = 1200;
                 if (parsed.profile.countryCode === undefined) parsed.profile.countryCode = 'UZB';
+                if (!parsed.profile.tactic) parsed.profile.tactic = 'balanced';
+                if (!parsed.profile.captainId) parsed.profile.captainId = 'fw_3';
+                if (!parsed.profile.lang) parsed.profile.lang = 'uz';
                 
                 if (!parsed.chatLogs) parsed.chatLogs = defaultState.chatLogs;
                 if (!parsed.quests) parsed.quests = defaultState.quests;
@@ -233,6 +236,23 @@ class FootballDatabase {
         this.addXP(200);
         this.save();
         return { success: true, msg: `${player.name} sotib olindi! +200 XP` };
+    }
+
+    scoutRandomPlayer() {
+        const scoutCost = 400;
+        if (this.state.profile.coins < scoutCost) {
+            return { success: false, msg: 'Skaut yuborish uchun 400 tanga kerak!' };
+        }
+        const candidates = this.fictionalPlayers.filter(p => p.rating >= 85 && !this.state.ownedPlayers.includes(p.id));
+        if (candidates.length === 0) {
+            return { success: false, msg: 'Barcha 85+ yulduz o\'yinchilar allaqachon jamoangizda bor!' };
+        }
+        const found = candidates[Math.floor(Math.random() * candidates.length)];
+        this.state.profile.coins -= scoutCost;
+        this.state.ownedPlayers.push(found.id);
+        this.addXP(250);
+        this.save();
+        return { success: true, player: found, msg: `🎉 Skaut topilma keltirdi: ${found.name} (${found.role}, OVR ${found.rating}) tarkibingizga qo'shildi! +250 XP` };
     }
 
     assignSquadPlayer(role, playerId) {

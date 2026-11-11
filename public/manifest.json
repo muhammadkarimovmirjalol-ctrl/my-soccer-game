@@ -1,0 +1,18 @@
+{
+  "name": "FC MOBILE 3D - Milliy va Klublar Chempionati",
+  "short_name": "FC MOBILE 3D",
+  "description": "3D Futbol Simulyatori - Kompyuter, planshet va barcha mobil qurilmalar uchun!",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#060b16",
+  "theme_color": "#02f87b",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='112' fill='%23060b16'/><circle cx='256' cy='256' r='190' fill='%2302f87b' opacity='0.15'/><circle cx='256' cy='256' r='150' fill='none' stroke='%2302f87b' stroke-width='20'/><polygon points='256,160 320,210 295,290 217,290 192,210' fill='%2302f87b'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -859,7 +859,7 @@ body, html {
     font-weight: bold;
 }
 
-.formation-btn {
+.formation-btn, .tactic-btn {
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid rgba(255, 255, 255, 0.08);
     color: var(--text-sub);
@@ -870,10 +870,29 @@ body, html {
     transition: all 0.2s;
 }
 
-.formation-btn:hover, .formation-btn.active {
+.formation-btn:hover, .formation-btn.active, .tactic-btn:hover, .tactic-btn.active {
     background: rgba(2, 248, 123, 0.15);
     color: #fff;
     border-color: var(--primary);
+}
+
+.captain-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-sub);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: 8px;
+}
+
+.captain-btn.is-captain, .captain-btn:hover {
+    background: rgba(255, 211, 42, 0.18);
+    border-color: var(--gold);
+    color: var(--gold);
 }
 
 .tactical-field-grid {
